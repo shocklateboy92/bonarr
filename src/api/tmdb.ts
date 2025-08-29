@@ -20,7 +20,7 @@ export async function searchTVShows(query: string, page = 1) {
       query: {
         query,
         page,
-        include_adult: false,
+        include_adult: true,
       },
     },
   });

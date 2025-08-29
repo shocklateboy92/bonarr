@@ -20,21 +20,14 @@ import { searchTVShows } from "../api/tmdb";
 
 export default function TVShowSearch() {
   const [searchQuery, setSearchQuery] = createSignal("");
-  const [query, setQuery] = createSignal("");
 
-  const [tvShows] = createResource(
-    () => query().trim() || undefined,
+  const [tvShows, {refetch}] = createResource(
+    () => searchQuery().trim(),
     async (q) => {
       if (!q) return null;
       return await searchTVShows(q);
     }
   );
-
-  const handleSearch = () => {
-    if (searchQuery().trim()) {
-      setQuery(searchQuery().trim());
-    }
-  };
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 2 }}>
@@ -44,16 +37,12 @@ export default function TVShowSearch() {
           label="Search TV Shows"
           variant="outlined"
           value={searchQuery()}
-          onInput={(e) => setSearchQuery((e.target as HTMLInputElement).value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
+          onChange={e => setSearchQuery(e.target.value)}
+
         />
         <Button
           variant="contained"
-          onClick={handleSearch}
+          onclick={refetch}
           disabled={!searchQuery().trim()}
         >
           Search
@@ -74,7 +63,7 @@ export default function TVShowSearch() {
             </Typography>
           </Match>
 
-          <Match when={!query()}>
+          <Match when={!searchQuery()}>
             <Typography
               variant="body1"
               sx={{ textAlign: "center", my: 4, color: "text.secondary" }}
@@ -88,7 +77,7 @@ export default function TVShowSearch() {
               variant="body1"
               sx={{ textAlign: "center", my: 4, color: "text.secondary" }}
             >
-              No TV shows found for "{query()}"
+              No TV shows found for "{searchQuery()}"
             </Typography>
           </Match>
 
