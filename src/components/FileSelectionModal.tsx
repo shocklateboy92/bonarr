@@ -139,9 +139,12 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
       fullWidth
       sx={{
         "& .MuiDialog-paper": {
-          maxHeight: "90vh",
-          m: { xs: 1, sm: 2 },
-          maxWidth: { xs: "calc(100vw - 16px)", sm: "600px" },
+          maxHeight: { xs: "100vh", sm: "90vh" },
+          m: { xs: 0, sm: 2 },
+          maxWidth: { xs: "100vw", sm: "600px" },
+          width: { xs: "100vw", sm: "auto" },
+          height: { xs: "100vh", sm: "auto" },
+          borderRadius: { xs: 0, sm: 1 },
         },
       }}
     >
@@ -168,7 +171,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ px: { xs: 2, sm: 3 } }}>
+      <DialogContent sx={{ px: { xs: 1, sm: 3 }, py: { xs: 1, sm: 2 } }}>
         {/* Search Field */}
         <TextField
           fullWidth
@@ -352,11 +355,20 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: { xs: 2, sm: 3 }, pb: { xs: 2, sm: 3 } }}>
+      <DialogActions sx={{ 
+        px: { xs: 1, sm: 3 }, 
+        pb: { xs: 1, sm: 3 },
+        pt: { xs: 1, sm: 2 },
+        flexDirection: { xs: "column", sm: "row" },
+        gap: { xs: 1, sm: 0 },
+        "& > :not(style) ~ :not(style)": {
+          ml: { xs: 0, sm: 1 }
+        }
+      }}>
         <Button onClick={handleCancel} color="inherit">
           Cancel
         </Button>
-        <Box sx={{ flex: 1 }} />
+        <Box sx={{ flex: { xs: 0, sm: 1 } }} />
         <Button
           onClick={handleConfirm}
           variant="outlined"
@@ -370,7 +382,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
             variant="contained"
             disabled={!selectedFile()}
             endIcon={<ArrowForward />}
-            sx={{ ml: 1 }}
+            sx={{ ml: { xs: 0, sm: 1 }, order: { xs: -1, sm: 0 } }}
           >
             Select & Next Episode
           </Button>
