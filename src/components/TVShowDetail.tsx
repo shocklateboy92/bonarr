@@ -159,6 +159,75 @@ export default function TVShowDetail() {
                     </Box>
                   </Box>
                 </Box>
+
+                <Show when={show().seasons && show().seasons!.length > 0}>
+                  <Box sx={{ mt: 4 }}>
+                    <Typography variant="h5" sx={{ mb: 3 }}>
+                      Seasons
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                      <For each={show().seasons}>
+                        {(season) => (
+                          <A 
+                            href={`/show/${params.id}/season/${season.season_number}`}
+                            style={{ "text-decoration": "none", color: "inherit" }}
+                          >
+                            <Card sx={{ 
+                              width: 200,
+                              cursor: "pointer",
+                              transition: "all 0.2s ease-in-out",
+                              "&:hover": {
+                                boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                                transform: "translateY(-2px)"
+                              }
+                            }}>
+                              <CardContent sx={{ p: 2 }}>
+                                <Show when={season.poster_path}>
+                                  <img
+                                    src={`https://image.tmdb.org/t/p/w300${season.poster_path}`}
+                                    alt={season.name}
+                                    style={{
+                                      width: "100%",
+                                      height: "250px",
+                                      "object-fit": "cover",
+                                      "border-radius": "4px",
+                                      "margin-bottom": "8px"
+                                    }}
+                                  />
+                                </Show>
+                                <Typography variant="h6" component="h3" sx={{ mb: 1 }}>
+                                  {season.name}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                  {season.episode_count} episodes
+                                </Typography>
+                                <Show when={season.air_date}>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Aired: {season.air_date}
+                                  </Typography>
+                                </Show>
+                                <Show when={season.overview}>
+                                  <Typography 
+                                    variant="body2" 
+                                    sx={{ mt: 1 }}
+                                    style={{
+                                      display: "-webkit-box",
+                                      "-webkit-line-clamp": 3,
+                                      "-webkit-box-orient": "vertical",
+                                      overflow: "hidden"
+                                    }}
+                                  >
+                                    {season.overview}
+                                  </Typography>
+                                </Show>
+                              </CardContent>
+                            </Card>
+                          </A>
+                        )}
+                      </For>
+                    </Box>
+                  </Box>
+                </Show>
               </CardContent>
             </Card>
           )}

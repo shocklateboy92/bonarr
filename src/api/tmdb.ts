@@ -46,4 +46,21 @@ export async function getTVShowDetails(id: number) {
   return data;
 }
 
+export async function getTVSeasonDetails(seriesId: number, seasonNumber: number) {
+  const { data, error } = await client.GET('/3/tv/{series_id}/season/{season_number}', {
+    params: {
+      path: { 
+        series_id: seriesId,
+        season_number: seasonNumber 
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(`Failed to fetch TV season details: ${JSON.stringify(error, null, 2)}`);
+  }
+
+  return data;
+}
+
 export { client };
