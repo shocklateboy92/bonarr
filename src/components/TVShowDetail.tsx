@@ -23,7 +23,7 @@ export default function TVShowDetail() {
   );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box sx={{ mb: 3 }}>
         <A href="/">
           <Button startIcon={<ArrowBack />} variant="outlined">
@@ -49,21 +49,39 @@ export default function TVShowDetail() {
           {(show) => (
             <Card>
               <CardContent>
-                <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                <Box sx={{ 
+                  display: "flex", 
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: { xs: 2, md: 4 }, 
+                  alignItems: { xs: "center", md: "flex-start" }
+                }}>
                   <Show when={show().poster_path}>
                     <img
                       src={`https://image.tmdb.org/t/p/w500${show().poster_path}`}
                       alt={show().name}
                       style={{
-                        width: "300px",
+                        width: "100%",
+                        "max-width": "300px",
                         "border-radius": "8px",
                         "box-shadow": "0 4px 8px rgba(0,0,0,0.2)",
+                        "flex-shrink": "0"
                       }}
                     />
                   </Show>
                   
-                  <Box sx={{ flex: 1, minWidth: "300px" }}>
-                    <Typography variant="h3" component="h1" sx={{ mb: 2 }}>
+                  <Box sx={{ 
+                    flex: 1, 
+                    minWidth: { xs: "100%", md: "300px" },
+                    textAlign: { xs: "center", md: "left" }
+                  }}>
+                    <Typography 
+                      variant="h3" 
+                      component="h1" 
+                      sx={{ 
+                        mb: 2,
+                        fontSize: { xs: "1.75rem", md: "3rem" }
+                      }}
+                    >
                       {show().name}
                     </Typography>
                     
@@ -76,7 +94,13 @@ export default function TVShowDetail() {
                       </Typography>
                     </Show>
 
-                    <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    <Box sx={{ 
+                      mb: 3, 
+                      display: "flex", 
+                      gap: { xs: 1, sm: 2 }, 
+                      flexWrap: "wrap",
+                      justifyContent: { xs: "center", md: "flex-start" }
+                    }}>
                       <Show when={show().first_air_date}>
                         <Chip 
                           label={`First aired: ${show().first_air_date}`} 
@@ -102,7 +126,12 @@ export default function TVShowDetail() {
                         <Typography variant="h6" sx={{ mb: 1 }}>
                           Genres
                         </Typography>
-                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        <Box sx={{ 
+                          display: "flex", 
+                          gap: 1, 
+                          flexWrap: "wrap",
+                          justifyContent: { xs: "center", md: "flex-start" }
+                        }}>
                           <For each={show().genres}>
                             {(genre) => (
                               <Chip label={genre.name} size="small" />
@@ -123,7 +152,12 @@ export default function TVShowDetail() {
                       </Box>
                     </Show>
 
-                    <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                    <Box sx={{ 
+                      display: "flex", 
+                      gap: { xs: 2, md: 3 }, 
+                      flexWrap: "wrap",
+                      justifyContent: { xs: "center", md: "flex-start" }
+                    }}>
                       <Show when={show().number_of_seasons}>
                         <Box>
                           <Typography variant="subtitle2" color="text.secondary">
@@ -165,7 +199,16 @@ export default function TVShowDetail() {
                     <Typography variant="h5" sx={{ mb: 3 }}>
                       Seasons
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    <Box sx={{ 
+                      display: "grid", 
+                      gridTemplateColumns: { 
+                        xs: "1fr", 
+                        sm: "repeat(2, 1fr)", 
+                        md: "repeat(3, 1fr)", 
+                        lg: "repeat(4, 1fr)" 
+                      },
+                      gap: 2 
+                    }}>
                       <For each={show().seasons}>
                         {(season) => (
                           <A 
@@ -173,13 +216,13 @@ export default function TVShowDetail() {
                             style={{ "text-decoration": "none", color: "inherit" }}
                           >
                             <Card sx={{ 
-                              width: 200,
                               cursor: "pointer",
                               transition: "all 0.2s ease-in-out",
                               "&:hover": {
                                 boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
                                 transform: "translateY(-2px)"
-                              }
+                              },
+                              height: "100%"
                             }}>
                               <CardContent sx={{ p: 2 }}>
                                 <Show when={season.poster_path}>
@@ -188,7 +231,7 @@ export default function TVShowDetail() {
                                     alt={season.name}
                                     style={{
                                       width: "100%",
-                                      height: "250px",
+                                      height: "200px",
                                       "object-fit": "cover",
                                       "border-radius": "4px",
                                       "margin-bottom": "8px"

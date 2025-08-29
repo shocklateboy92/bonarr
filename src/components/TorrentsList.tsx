@@ -63,7 +63,7 @@ export default function TorrentsList() {
 
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box sx={{ mb: 3 }}>
         <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
           <Button startIcon={<ArrowBack />} variant="outlined">
@@ -72,7 +72,14 @@ export default function TorrentsList() {
         </A>
       </Box>
 
-      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+      <Typography 
+        variant="h4" 
+        component="h1" 
+        sx={{ 
+          mb: 2,
+          fontSize: { xs: "1.5rem", md: "2.125rem" }
+        }}
+      >
         Select Torrent for Season {params.seasonNumber}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
@@ -125,11 +132,21 @@ export default function TorrentsList() {
                       transform: "translateY(-2px)"
                     }
                   }}>
-                    <CardContent>
+                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       {/* Header */}
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                        <Box sx={{ flex: 1, mr: 2 }}>
+                      <Box sx={{ 
+                        display: "flex", 
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between", 
+                        alignItems: { xs: "flex-start", sm: "flex-start" },
+                        gap: { xs: 1, sm: 0 }
+                      }}>
+                        <Box sx={{ 
+                          flex: 1, 
+                          mr: { xs: 0, sm: 2 },
+                          width: { xs: "100%", sm: "auto" }
+                        }}>
                           <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
                             {torrent.name}
                           </Typography>
@@ -137,7 +154,12 @@ export default function TorrentsList() {
                             Added: {formatDate(torrent.addedDate)}
                           </Typography>
                         </Box>
-                        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Box sx={{ 
+                          display: "flex", 
+                          gap: 1, 
+                          alignItems: "center",
+                          justifyContent: { xs: "flex-start", sm: "flex-end" }
+                        }}>
                           <Chip
                             icon={getStatusIcon(torrent.status)}
                             label={transmissionClient.getStatusLabel(torrent.status)}
@@ -165,7 +187,12 @@ export default function TorrentsList() {
                       </Box>
 
                       {/* Stats */}
-                      <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                      <Box sx={{ 
+                        display: "flex", 
+                        gap: { xs: 2, sm: 4 }, 
+                        flexWrap: "wrap",
+                        justifyContent: { xs: "center", sm: "flex-start" }
+                      }}>
                         <Show when={torrent.rateDownload > 0}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <Download fontSize="small" color="primary" />
@@ -213,7 +240,15 @@ export default function TorrentsList() {
                       </Show>
 
                       {/* Download location */}
-                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                          wordBreak: 'break-all'
+                        }}
+                      >
                         📁 {torrent.downloadDir}
                       </Typography>
                     </Box>

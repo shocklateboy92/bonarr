@@ -24,15 +24,29 @@ export default function SeasonDetail() {
   );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-      <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
+      <Box sx={{ 
+        mb: 3, 
+        display: "flex", 
+        flexDirection: { xs: "column", sm: "row" },
+        gap: { xs: 1, sm: 2 } 
+      }}>
         <A href={`/show/${params.id}`}>
-          <Button startIcon={<ArrowBack />} variant="outlined">
+          <Button 
+            startIcon={<ArrowBack />} 
+            variant="outlined"
+            sx={{ minHeight: "48px" }}
+          >
             Back to Show
           </Button>
         </A>
         <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
-          <Button startIcon={<Download />} variant="contained" color="primary">
+          <Button 
+            startIcon={<Download />} 
+            variant="contained" 
+            color="primary"
+            sx={{ minHeight: "48px" }}
+          >
             Find Torrents
           </Button>
         </A>
@@ -55,25 +69,50 @@ export default function SeasonDetail() {
           {(seasonData) => (
             <Card>
               <CardContent>
-                <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap", mb: 4 }}>
+                <Box sx={{ 
+                  display: "flex", 
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: { xs: 2, md: 4 }, 
+                  mb: 4,
+                  alignItems: { xs: "center", md: "flex-start" }
+                }}>
                   <Show when={seasonData().poster_path}>
                     <img
                       src={`https://image.tmdb.org/t/p/w500${seasonData().poster_path}`}
                       alt={seasonData().name}
                       style={{
-                        width: "300px",
+                        width: "100%",
+                        "max-width": "300px",
                         "border-radius": "8px",
                         "box-shadow": "0 4px 8px rgba(0,0,0,0.2)",
+                        "flex-shrink": "0"
                       }}
                     />
                   </Show>
                   
-                  <Box sx={{ flex: 1, minWidth: "300px" }}>
-                    <Typography variant="h3" component="h1" sx={{ mb: 2 }}>
+                  <Box sx={{ 
+                    flex: 1, 
+                    minWidth: { xs: "100%", md: "300px" },
+                    textAlign: { xs: "center", md: "left" }
+                  }}>
+                    <Typography 
+                      variant="h3" 
+                      component="h1" 
+                      sx={{ 
+                        mb: 2,
+                        fontSize: { xs: "1.75rem", md: "3rem" }
+                      }}
+                    >
                       {seasonData().name}
                     </Typography>
 
-                    <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    <Box sx={{ 
+                      mb: 3, 
+                      display: "flex", 
+                      gap: { xs: 1, sm: 2 }, 
+                      flexWrap: "wrap",
+                      justifyContent: { xs: "center", md: "flex-start" }
+                    }}>
                       <Show when={seasonData().air_date}>
                         <Chip 
                           label={`Aired: ${seasonData().air_date}`} 
@@ -107,28 +146,44 @@ export default function SeasonDetail() {
 
                 <Show when={seasonData().episodes && seasonData().episodes!.length > 0}>
                   <Box>
-                    <Typography variant="h4" sx={{ mb: 3 }}>
+                    <Typography 
+                      variant="h4" 
+                      sx={{ 
+                        mb: 3,
+                        fontSize: { xs: "1.5rem", md: "2.125rem" }
+                      }}
+                    >
                       Episodes
                     </Typography>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <For each={seasonData().episodes}>
                         {(episode) => (
                           <Card variant="outlined">
-                            <CardContent>
-                              <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
+                            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                              <Box sx={{ 
+                                display: "flex", 
+                                flexDirection: { xs: "column", sm: "row" },
+                                gap: { xs: 2, sm: 3 }, 
+                                alignItems: { xs: "center", sm: "flex-start" }
+                              }}>
                                 <Show when={episode.still_path}>
                                   <img
                                     src={`https://image.tmdb.org/t/p/w300${episode.still_path}`}
                                     alt={episode.name}
                                     style={{
-                                      width: "200px",
+                                      width: "100%",
+                                      "max-width": "200px",
                                       height: "112px",
                                       "object-fit": "cover",
-                                      "border-radius": "4px"
+                                      "border-radius": "4px",
+                                      "flex-shrink": "0"
                                     }}
                                   />
                                 </Show>
-                                <Box sx={{ flex: 1 }}>
+                                <Box sx={{ 
+                                  flex: 1,
+                                  textAlign: { xs: "center", sm: "left" }
+                                }}>
                                   <Typography variant="h6" sx={{ mb: 1 }}>
                                     {episode.episode_number}. {episode.name}
                                   </Typography>

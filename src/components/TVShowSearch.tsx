@@ -31,8 +31,13 @@ export default function TVShowSearch() {
   );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 2 }}>
-      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 1, md: 2 } }}>
+      <Box sx={{ 
+        display: "flex", 
+        flexDirection: { xs: "column", sm: "row" },
+        gap: { xs: 1, sm: 2 }, 
+        mb: 3 
+      }}>
         <TextField
           fullWidth
           label="Search TV Shows"
@@ -45,6 +50,10 @@ export default function TVShowSearch() {
           variant="contained"
           onclick={refetch}
           disabled={!searchQuery().trim()}
+          sx={{ 
+            minWidth: { xs: "100%", sm: "auto" },
+            minHeight: { xs: "48px", sm: "auto" }
+          }}
         >
           Search
         </Button>
@@ -104,8 +113,13 @@ export default function TVShowSearch() {
                           transform: "translateY(-2px)"
                         }
                       }}>
-                        <CardContent>
-                        <Box sx={{ display: "flex", gap: 2 }}>
+                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Box sx={{ 
+                          display: "flex", 
+                          flexDirection: { xs: "column", sm: "row" },
+                          gap: { xs: 2, sm: 2 },
+                          alignItems: { xs: "center", sm: "flex-start" }
+                        }}>
                           <Show when={show.poster_path}>
                             <img
                               src={`https://image.tmdb.org/t/p/w92${show.poster_path}`}
@@ -114,10 +128,15 @@ export default function TVShowSearch() {
                                 width: "92px",
                                 height: "138px",
                                 "border-radius": "4px",
+                                "flex-shrink": "0"
                               }}
                             />
                           </Show>
-                          <Box sx={{ flex: 1 }}>
+                          <Box sx={{ 
+                            flex: 1, 
+                            textAlign: { xs: "center", sm: "left" },
+                            width: { xs: "100%", sm: "auto" }
+                          }}>
                             <Typography variant="h6" component="h2">
                               {show.name}
                             </Typography>

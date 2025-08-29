@@ -76,15 +76,27 @@ export default function TorrentFiles() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-      <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
+      <Box sx={{ 
+        mb: 3, 
+        display: "flex", 
+        flexDirection: { xs: "column", sm: "row" },
+        gap: { xs: 1, sm: 2 } 
+      }}>
         <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
-          <Button startIcon={<ArrowBack />} variant="outlined">
+          <Button 
+            startIcon={<ArrowBack />} 
+            variant="outlined"
+            sx={{ minHeight: "48px" }}
+          >
             Back to Torrents
           </Button>
         </A>
         <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
-          <Button variant="outlined">
+          <Button 
+            variant="outlined"
+            sx={{ minHeight: "48px" }}
+          >
             Back to Season
           </Button>
         </A>
@@ -116,7 +128,14 @@ export default function TorrentFiles() {
               {/* Torrent Info Header */}
               <Card sx={{ mb: 3 }}>
                 <CardContent>
-                  <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+                  <Typography 
+                    variant="h4" 
+                    component="h1" 
+                    sx={{ 
+                      mb: 2,
+                      fontSize: { xs: "1.5rem", md: "2.125rem" }
+                    }}
+                  >
                     {torrentData().name}
                   </Typography>
                   
@@ -163,7 +182,14 @@ export default function TorrentFiles() {
               {/* Files List */}
               <Card>
                 <CardContent>
-                  <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+                  <Typography 
+                    variant="h5" 
+                    component="h2" 
+                    sx={{ 
+                      mb: 2,
+                      fontSize: { xs: "1.25rem", md: "1.5rem" }
+                    }}
+                  >
                     Files ({torrentData().files?.length || 0})
                   </Typography>
 
@@ -174,7 +200,11 @@ export default function TorrentFiles() {
                   </Show>
 
                   <Show when={torrentData().files && torrentData().files!.length > 0}>
-                    <TableContainer component={Paper} variant="outlined">
+                    <TableContainer 
+                      component={Paper} 
+                      variant="outlined"
+                      sx={{ overflowX: "auto" }}
+                    >
                       <Table>
                         <TableHead>
                           <TableRow>
