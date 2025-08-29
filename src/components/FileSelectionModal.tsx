@@ -358,17 +358,16 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
       <DialogActions sx={{ 
         px: { xs: 1, sm: 3 }, 
         pb: { xs: 1, sm: 3 },
-        pt: { xs: 1, sm: 2 },
-        flexDirection: { xs: "column", sm: "row" },
-        gap: { xs: 1, sm: 0 },
-        "& > :not(style) ~ :not(style)": {
-          ml: { xs: 0, sm: 1 }
-        }
+        pt: { xs: 1, sm: 2 }
       }}>
-        <Button onClick={handleCancel} color="inherit">
+        <Button 
+          onClick={handleCancel} 
+          color="inherit"
+          sx={{ display: { xs: "none", sm: "inline-flex" } }}
+        >
           Cancel
         </Button>
-        <Box sx={{ flex: { xs: 0, sm: 1 } }} />
+        <Box sx={{ flex: 1 }} />
         <Button
           onClick={handleConfirm}
           variant="outlined"
@@ -382,7 +381,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
             variant="contained"
             disabled={!selectedFile()}
             endIcon={<ArrowForward />}
-            sx={{ ml: { xs: 0, sm: 1 }, order: { xs: -1, sm: 0 } }}
+            sx={{ ml: 1 }}
           >
             Select & Next Episode
           </Button>
