@@ -26,7 +26,21 @@ export async function searchTVShows(query: string, page = 1) {
   });
 
   if (error) {
-    throw new Error(`Failed to search TV shows: ${error}`);
+    throw new Error(`Failed to search TV shows: ${JSON.stringify(error, null, 2)}`);
+  }
+
+  return data;
+}
+
+export async function getTVShowDetails(id: number) {
+  const { data, error } = await client.GET('/3/tv/{series_id}', {
+    params: {
+      path: { series_id: id },
+    },
+  });
+
+  if (error) {
+    throw new Error(`Failed to fetch TV show details: ${JSON.stringify(error, null, 2)}`);
   }
 
   return data;

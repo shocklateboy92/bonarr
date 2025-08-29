@@ -16,6 +16,7 @@ import {
   Box,
   CircularProgress,
 } from "@suid/material";
+import { A } from "@solidjs/router";
 import { searchTVShows } from "../api/tmdb";
 
 export default function TVShowSearch() {
@@ -90,8 +91,20 @@ export default function TVShowSearch() {
 
                 <For each={tvShows().results}>
                   {(show) => (
-                    <Card sx={{ mb: 2 }}>
-                      <CardContent>
+                    <A 
+                      href={`/show/${show.id}`}
+                      style={{ "text-decoration": "none", color: "inherit" }}
+                    >
+                      <Card sx={{ 
+                        mb: 2, 
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                          transform: "translateY(-2px)"
+                        }
+                      }}>
+                        <CardContent>
                         <Box sx={{ display: "flex", gap: 2 }}>
                           <Show when={show.poster_path}>
                             <img
@@ -131,8 +144,9 @@ export default function TVShowSearch() {
                             </Show>
                           </Box>
                         </Box>
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                      </Card>
+                    </A>
                   )}
                 </For>
               </>
