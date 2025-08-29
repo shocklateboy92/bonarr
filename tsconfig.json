@@ -11,6 +11,8 @@
       "vite/client"
     ],
     "noEmit": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true
   }
 }
