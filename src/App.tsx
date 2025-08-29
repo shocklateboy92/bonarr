@@ -5,6 +5,7 @@ import TVShowDetail from "./components/TVShowDetail";
 import SeasonDetail from "./components/SeasonDetail";
 import TorrentsList from "./components/TorrentsList";
 import TorrentFiles from "./components/TorrentFiles";
+import EpisodeTorrentMatcher from "./components/EpisodeTorrentMatcher";
 
 function Layout(props: any) {
   return (
@@ -34,6 +35,7 @@ export default function App() {
       <Route path="/show/:id/season/:seasonNumber" component={SeasonDetail} />
       <Route path="/show/:id/season/:seasonNumber/torrents" component={TorrentsList} />
       <Route path="/show/:id/season/:seasonNumber/torrents/:torrentId" component={TorrentFiles} />
+      <Route path="/show/:id/season/:seasonNumber/torrents/:torrentId/match" component={EpisodeTorrentMatcher} />
     </Router>
   );
 }

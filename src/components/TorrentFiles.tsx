@@ -100,6 +100,15 @@ export default function TorrentFiles() {
             Back to Season
           </Button>
         </A>
+        <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents/${params.torrentId}/match`}>
+          <Button 
+            variant="contained"
+            color="primary"
+            sx={{ minHeight: "48px" }}
+          >
+            Match Episodes
+          </Button>
+        </A>
       </Box>
 
       <Suspense
