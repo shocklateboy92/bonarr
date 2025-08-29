@@ -1,5 +1,5 @@
 import { createResource, Show, Suspense, For } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useParams } from "@solidjs/router";
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Chip,
   LinearProgress,
+  Button,
 } from "@suid/material";
 import { 
   Download, 
@@ -16,11 +17,14 @@ import {
   Stop, 
   CheckCircle,
   Error as ErrorIcon,
-  Schedule 
+  Schedule,
+  ArrowBack 
 } from "@suid/icons-material";
 import { transmissionClient, Torrent } from "../api/transmission";
 
 export default function TorrentsList() {
+  const params = useParams();
+  
   const [torrents, { refetch }] = createResource(
     async () => {
       return await transmissionClient.getTorrents();
@@ -60,8 +64,19 @@ export default function TorrentsList() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
-        Active Torrents
+      <Box sx={{ mb: 3 }}>
+        <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+          <Button startIcon={<ArrowBack />} variant="outlined">
+            Back to Season
+          </Button>
+        </A>
+      </Box>
+
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        Select Torrent for Season {params.seasonNumber}
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Choose a torrent to download this season's episodes
       </Typography>
 
       <Suspense
@@ -99,7 +114,7 @@ export default function TorrentsList() {
             <For each={torrents()}>
               {(torrent: Torrent) => (
                 <A 
-                  href={`/torrents/${torrent.id}`}
+                  href={`/show/${params.id}/season/${params.seasonNumber}/torrents/${torrent.id}`}
                   style={{ "text-decoration": "none", color: "inherit" }}
                 >
                   <Card sx={{ 

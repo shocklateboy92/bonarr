@@ -9,7 +9,7 @@ import {
   Button,
   Chip,
 } from "@suid/material";
-import { ArrowBack } from "@suid/icons-material";
+import { ArrowBack, Download } from "@suid/icons-material";
 import { getTVSeasonDetails } from "../api/tmdb";
 
 export default function SeasonDetail() {
@@ -25,10 +25,15 @@ export default function SeasonDetail() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
         <A href={`/show/${params.id}`}>
           <Button startIcon={<ArrowBack />} variant="outlined">
             Back to Show
+          </Button>
+        </A>
+        <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
+          <Button startIcon={<Download />} variant="contained" color="primary">
+            Find Torrents
           </Button>
         </A>
       </Box>

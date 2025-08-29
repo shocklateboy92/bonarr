@@ -30,10 +30,10 @@ export default function TorrentFiles() {
   const params = useParams();
   
   const [torrent] = createResource(
-    () => params.id,
-    async (id) => {
-      if (!id) return null;
-      return await transmissionClient.getTorrentFiles(parseInt(id));
+    () => params.torrentId,
+    async (torrentId) => {
+      if (!torrentId) return null;
+      return await transmissionClient.getTorrentFiles(parseInt(torrentId));
     }
   );
 
@@ -77,10 +77,15 @@ export default function TorrentFiles() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-      <Box sx={{ mb: 3 }}>
-        <A href="/torrents">
+      <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
+        <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
           <Button startIcon={<ArrowBack />} variant="outlined">
             Back to Torrents
+          </Button>
+        </A>
+        <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+          <Button variant="outlined">
+            Back to Season
           </Button>
         </A>
       </Box>
@@ -101,6 +106,13 @@ export default function TorrentFiles() {
         <Show when={torrent()}>
           {(torrentData) => (
             <Box>
+              {/* Context Header */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" color="text.secondary">
+                  Season {params.seasonNumber} Torrent Files
+                </Typography>
+              </Box>
+
               {/* Torrent Info Header */}
               <Card sx={{ mb: 3 }}>
                 <CardContent>
