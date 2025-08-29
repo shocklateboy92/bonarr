@@ -198,6 +198,39 @@ export default function EpisodeTorrentMatcher() {
     return match?.file || null;
   };
 
+  const getNextEpisode = (currentEpisode: any): any | null => {
+    const seasonData = season();
+    if (!seasonData?.episodes) return null;
+    
+    const currentIndex = seasonData.episodes.findIndex(
+      (ep: any) => ep.episode_number === currentEpisode.episode_number
+    );
+    
+    if (currentIndex === -1 || currentIndex >= seasonData.episodes.length - 1) {
+      return null;
+    }
+    
+    return seasonData.episodes[currentIndex + 1];
+  };
+
+  const handleFileSelectAndNext = (file: TorrentFile | null) => {
+    // First, select the file for current episode
+    handleFileSelect(file);
+    
+    // Then move to next episode
+    const currentEpisode = selectedEpisode();
+    if (!currentEpisode) return;
+    
+    const nextEpisode = getNextEpisode(currentEpisode);
+    if (nextEpisode) {
+      setSelectedEpisode(nextEpisode);
+      // Keep modal open to continue with next episode
+    } else {
+      // No more episodes, close modal
+      handleModalClose();
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box
@@ -500,6 +533,8 @@ export default function EpisodeTorrentMatcher() {
           files={torrent()?.files || []}
           currentFile={getCurrentFileForEpisode(selectedEpisode())}
           onFileSelect={handleFileSelect}
+          onFileSelectAndNext={handleFileSelectAndNext}
+          hasNextEpisode={getNextEpisode(selectedEpisode()) !== null}
         />
       </Show>
     </Box>

@@ -1,4 +1,4 @@
-import { createSignal, createMemo, For, Show } from "solid-js";
+import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
 import {
   Dialog,
   DialogTitle,
@@ -27,6 +27,7 @@ import {
   InsertDriveFile,
   Folder,
   Close,
+  ArrowForward,
 } from "@suid/icons-material";
 import { TorrentFile } from "../api/transmission";
 import { transmissionClient } from "../api/transmission";
@@ -38,6 +39,8 @@ interface FileSelectionModalProps {
   files: TorrentFile[];
   currentFile: TorrentFile | null;
   onFileSelect: (file: TorrentFile | null) => void;
+  onFileSelectAndNext?: (file: TorrentFile | null) => void;
+  hasNextEpisode?: boolean;
 }
 
 export default function FileSelectionModal(props: FileSelectionModalProps) {
@@ -45,6 +48,11 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
   const [selectedFile, setSelectedFile] = createSignal<TorrentFile | null>(
     props.currentFile
   );
+
+  // Update selected file when episode changes (for next episode workflow)
+  createEffect(() => {
+    setSelectedFile(props.currentFile);
+  });
 
   const videoFiles = createMemo(() => {
     return props.files.filter((file) =>
@@ -95,6 +103,14 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
   const handleConfirm = () => {
     props.onFileSelect(selectedFile());
     props.onClose();
+  };
+
+  const handleConfirmAndNext = () => {
+    if (props.onFileSelectAndNext) {
+      props.onFileSelectAndNext(selectedFile());
+      // Reset selected file for next episode
+      setSelectedFile(null);
+    }
   };
 
   const handleCancel = () => {
@@ -340,13 +356,25 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         <Button onClick={handleCancel} color="inherit">
           Cancel
         </Button>
+        <Box sx={{ flex: 1 }} />
         <Button
           onClick={handleConfirm}
-          variant="contained"
+          variant="outlined"
           disabled={selectedFile() === props.currentFile}
         >
           Select File
         </Button>
+        <Show when={props.hasNextEpisode && props.onFileSelectAndNext}>
+          <Button
+            onClick={handleConfirmAndNext}
+            variant="contained"
+            disabled={!selectedFile()}
+            endIcon={<ArrowForward />}
+            sx={{ ml: 1 }}
+          >
+            Select & Next Episode
+          </Button>
+        </Show>
       </DialogActions>
     </Dialog>
   );
