@@ -23,6 +23,7 @@ import {
   TorrentWithFiles,
   TorrentFile,
 } from "../api/transmission";
+import FileSelectionModal from "./FileSelectionModal";
 
 interface EpisodeMatch {
   episode: any;
@@ -54,6 +55,8 @@ export default function EpisodeTorrentMatcher() {
   );
 
   const [matches, setMatches] = createSignal<EpisodeMatch[]>([]);
+  const [modalOpen, setModalOpen] = createSignal(false);
+  const [selectedEpisode, setSelectedEpisode] = createSignal<any>(null);
 
   // Auto-matching logic
   const matchEpisodesWithFiles = (episodes: any[], files: TorrentFile[]) => {
@@ -157,6 +160,42 @@ export default function EpisodeTorrentMatcher() {
 
   const getTotalCount = () => {
     return matches().length;
+  };
+
+  const handleChangeFile = (episode: any) => {
+    setSelectedEpisode(episode);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedEpisode(null);
+  };
+
+  const handleFileSelect = (file: TorrentFile | null) => {
+    const episode = selectedEpisode();
+    if (!episode) return;
+
+    const updatedMatches = matches().map((match) => {
+      if (match.episode.episode_number === episode.episode_number) {
+        return {
+          ...match,
+          file,
+          confidence: (file ? 'medium' : 'none') as 'high' | 'medium' | 'low' | 'none',
+          fileIndex: undefined, // Reset since this is manual selection
+        };
+      }
+      return match;
+    });
+    
+    setMatches(updatedMatches);
+  };
+
+  const getCurrentFileForEpisode = (episode: any): TorrentFile | null => {
+    const match = matches().find(
+      (m) => m.episode.episode_number === episode.episode_number
+    );
+    return match?.file || null;
   };
 
   return (
@@ -408,6 +447,7 @@ export default function EpisodeTorrentMatcher() {
                               size="small"
                               startIcon={match.file ? <SwapHoriz /> : undefined}
                               sx={{ minHeight: "36px" }}
+                              onClick={() => handleChangeFile(match.episode)}
                             >
                               {match.file ? "Change File" : "Select File"}
                             </Button>
@@ -450,6 +490,18 @@ export default function EpisodeTorrentMatcher() {
           </Box>
         </Show>
       </Suspense>
+
+      {/* File Selection Modal */}
+      <Show when={modalOpen() && selectedEpisode() && torrent()}>
+        <FileSelectionModal
+          open={modalOpen()}
+          onClose={handleModalClose}
+          episode={selectedEpisode()}
+          files={torrent()?.files || []}
+          currentFile={getCurrentFileForEpisode(selectedEpisode())}
+          onFileSelect={handleFileSelect}
+        />
+      </Show>
     </Box>
   );
 }
