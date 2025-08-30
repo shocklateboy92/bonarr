@@ -1,5 +1,5 @@
 import { createResource, createSignal, Show, Suspense, For } from "solid-js";
-import { useParams, useSearchParams, A } from "@solidjs/router";
+import { useParams, useSearchParams, A, useNavigate } from "@solidjs/router";
 import {
   Card,
   CardContent,
@@ -11,6 +11,7 @@ import {
   Chip,
   IconButton,
   InputAdornment,
+  Alert,
 } from "@suid/material";
 import { 
   ArrowBack, 
@@ -30,8 +31,14 @@ const TV_CATEGORIES = [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5070, 5080]; //
 export default function TorrentSearch() {
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [query, setQuery] = createSignal(Array.isArray(searchParams.q) ? searchParams.q[0] || '' : searchParams.q || '');
   const [isSearching, setIsSearching] = createSignal(false);
+  
+  // Toast notifications
+  const [notificationOpen, setNotificationOpen] = createSignal(false);
+  const [notificationMessage, setNotificationMessage] = createSignal('');
+  const [notificationSeverity, setNotificationSeverity] = createSignal<'error' | 'success' | 'info' | 'warning'>('info');
 
   const [searchResults, { refetch }] = createResource(
     () => query().trim() && query().length > 0 ? query().trim() : null,
@@ -66,14 +73,31 @@ export default function TorrentSearch() {
     }
   };
 
+  const showNotification = (message: string, severity: 'error' | 'success' | 'info' | 'warning' = 'info') => {
+    setNotificationMessage(message);
+    setNotificationSeverity(severity);
+    setNotificationOpen(true);
+    // Auto-hide after 6 seconds
+    setTimeout(() => setNotificationOpen(false), 6000);
+  };
+
   const handleDownload = async (magnetUrl: string, torrentName: string) => {
     try {
-      await transmissionClient.addTorrent(magnetUrl);
-      // Navigate to the EpisodeTorrentMatcher page
-      window.location.href = `/show/${params.id}/season/${params.seasonNumber}/torrents/match`;
+      const downloadDir = import.meta.env.VITE_TORRENT_FILTER_PATH;
+      const result = await transmissionClient.addTorrent(magnetUrl, downloadDir);
+      
+      if (result.id) {
+        // Successfully added, navigate to the torrent files page
+        showNotification(`Successfully added torrent: ${torrentName}`, 'success');
+        navigate(`/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`);
+      } else {
+        // Might be a duplicate or other issue
+        showNotification(`Torrent "${torrentName}" may already exist or could not be added`, 'warning');
+      }
     } catch (error) {
       console.error('Failed to add torrent:', error);
-      // You could add a toast notification here
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showNotification(`Failed to add torrent "${torrentName}": ${errorMessage}`, 'error');
     }
   };
 
@@ -366,6 +390,29 @@ export default function TorrentSearch() {
           </Card>
         </Show>
       </Suspense>
+
+      {/* Toast Notifications */}
+      <Show when={notificationOpen()}>
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            minWidth: '300px',
+            maxWidth: '600px',
+          }}
+        >
+          <Alert 
+            onClose={() => setNotificationOpen(false)} 
+            severity={notificationSeverity()}
+            sx={{ width: '100%' }}
+          >
+            {notificationMessage()}
+          </Alert>
+        </Box>
+      </Show>
     </Box>
   );
 }
