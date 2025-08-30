@@ -1,7 +1,6 @@
-"use server";
-
 import { promises as fs } from "fs";
 import { join, dirname, extname } from "path";
+import { query } from "@solidjs/router";
 
 export interface EpisodeMatch {
   episode: {
@@ -37,32 +36,35 @@ export interface ApplyMatchesResult {
   }[];
 }
 
-export async function applyMatches(params: ApplyMatchesParams): Promise<ApplyMatchesResult> {
-  const { matches, showName, showId, seasonNumber, torrentPath } = params;
+const makeError = (message: string) => {
+  throw new Error(message);
+};
+
+const libraryRoot =
+  process.env.VITE_LIBRARY_ROOT ??
+  makeError("VITE_LIBRARY_ROOT environment variable is not set");
+
+export const applyMatches = query(async (params: ApplyMatchesParams): Promise<ApplyMatchesResult> => {
+  "use server";
   
-  const libraryRoot = process.env.VITE_LIBRARY_ROOT;
-  if (!libraryRoot) {
-    return {
-      success: false,
-      processedCount: 0,
-      errors: ["VITE_LIBRARY_ROOT environment variable is not set"],
-      details: []
-    };
-  }
+  const { matches, showName, showId, seasonNumber, torrentPath } = params;
 
   const result: ApplyMatchesResult = {
     success: true,
     processedCount: 0,
     errors: [],
-    details: []
+    details: [],
   };
 
   // Sanitize show name for filesystem
-  const sanitizedShowName = showName.replace(/[<>:"/\\|?*]/g, '-');
-  
+  const sanitizedShowName = showName.replace(/[<>:"/\\|?*]/g, "-");
+
   // Create show directory structure
   const showDir = join(libraryRoot, `${sanitizedShowName} [tmdbid-${showId}]`);
-  const seasonDir = join(showDir, `Season ${seasonNumber.toString().padStart(2, '0')}`);
+  const seasonDir = join(
+    showDir,
+    `Season ${seasonNumber.toString().padStart(2, "0")}`
+  );
 
   try {
     // Ensure directories exist
@@ -75,18 +77,20 @@ export async function applyMatches(params: ApplyMatchesParams): Promise<ApplyMat
   }
 
   // Process each match that has a file
-  const matchesToProcess = matches.filter(match => match.file !== null);
-  
+  const matchesToProcess = matches.filter((match) => match.file !== null);
+
   for (const match of matchesToProcess) {
     const episode = match.episode;
     const file = match.file!;
-    
+
     const episodeNum = episode.episode_number;
     const sourceFile = join(torrentPath, file.name);
     const fileExt = extname(file.name);
-    const targetFileName = `S${seasonNumber.toString().padStart(2, '0')}E${episodeNum.toString().padStart(2, '0')}${fileExt}`;
+    const targetFileName = `S${seasonNumber
+      .toString()
+      .padStart(2, "0")}E${episodeNum.toString().padStart(2, "0")}${fileExt}`;
     const targetFile = join(seasonDir, targetFileName);
-    
+
     const detail: {
       episode: number;
       sourceFile: string;
@@ -97,37 +101,36 @@ export async function applyMatches(params: ApplyMatchesParams): Promise<ApplyMat
       episode: episodeNum,
       sourceFile,
       targetFile,
-      status: "error"
+      status: "error",
     };
 
     try {
       // Check if source file exists
       await fs.access(sourceFile);
-      
-      // Check if target file already exists
+
+      // Remove existing target file if it exists
       try {
-        await fs.access(targetFile);
-        detail.error = `Target file already exists: ${targetFile}`;
-        result.errors.push(detail.error);
+        await fs.unlink(targetFile);
       } catch {
-        // Target doesn't exist, we can proceed
-        try {
-          // Create hard link
-          await fs.link(sourceFile, targetFile);
-          detail.status = "success";
-          result.processedCount++;
-        } catch (linkError) {
-          detail.error = `Failed to create hard link: ${linkError}`;
-          result.errors.push(detail.error);
-          result.success = false;
-        }
+        // File doesn't exist, which is fine
+      }
+
+      // Create hard link
+      try {
+        await fs.link(sourceFile, targetFile);
+        detail.status = "success";
+        result.processedCount++;
+      } catch (linkError) {
+        detail.error = `Failed to create hard link: ${linkError}`;
+        result.errors.push(detail.error);
+        result.success = false;
       }
     } catch (accessError) {
       detail.error = `Source file not accessible: ${sourceFile} - ${accessError}`;
       result.errors.push(detail.error);
       result.success = false;
     }
-    
+
     result.details.push(detail);
   }
 
@@ -137,4 +140,4 @@ export async function applyMatches(params: ApplyMatchesParams): Promise<ApplyMat
   }
 
   return result;
-}
+}, "apply-matches");

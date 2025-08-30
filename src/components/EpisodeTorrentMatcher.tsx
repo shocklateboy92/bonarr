@@ -27,7 +27,7 @@ import {
   Error as ErrorIcon,
   Link as LinkIcon,
 } from "@suid/icons-material";
-import { getTVSeasonDetails } from "../api/tmdb";
+import { getTVSeasonDetails, getTVShowDetails } from "../api/tmdb";
 import {
   transmissionClient,
   TorrentWithFiles,
@@ -54,6 +54,14 @@ export default function EpisodeTorrentMatcher() {
         parseInt(seriesId),
         parseInt(seasonNumber)
       );
+    }
+  );
+
+  const [show] = createResource(
+    () => params.id,
+    async (seriesId) => {
+      if (!seriesId) return null;
+      return await getTVShowDetails(parseInt(seriesId));
     }
   );
 
@@ -249,9 +257,10 @@ export default function EpisodeTorrentMatcher() {
 
   const handleApplyMatches = async () => {
     const seasonData = season();
+    const showData = show();
     const torrentData = torrent();
     
-    if (!seasonData || !torrentData || isApplying()) return;
+    if (!seasonData || !showData || !torrentData || isApplying()) return;
 
     setIsApplying(true);
     
@@ -271,7 +280,7 @@ export default function EpisodeTorrentMatcher() {
 
       const result = await applyMatches({
         matches: matchesToApply,
-        showName: seasonData.name || `Season ${params.seasonNumber}`,
+        showName: showData.name || `Show ${params.id}`,
         showId: parseInt(params.id || "0"),
         seasonNumber: parseInt(params.seasonNumber || "1"),
         torrentPath: torrentData.downloadDir,
@@ -326,13 +335,13 @@ export default function EpisodeTorrentMatcher() {
           </Box>
         }
       >
-        <Show when={season.error || torrent.error}>
+        <Show when={season.error || show.error || torrent.error}>
           <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
-            Error: {season.error?.message || torrent.error?.message}
+            Error: {season.error?.message || show.error?.message || torrent.error?.message}
           </Typography>
         </Show>
 
-        <Show when={season() && torrent()}>
+        <Show when={season() && show() && torrent()}>
           <Box>
             <Box>
               {/* Context Header */}
