@@ -81,7 +81,7 @@ export default function SeasonDetail() {
             color="primary"
             sx={{ minHeight: "48px" }}
           >
-            Find Torrents
+            Select Torrent
           </Button>
         </A>
       </Box>
