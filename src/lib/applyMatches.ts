@@ -56,8 +56,11 @@ export const applyMatches = query(async (params: ApplyMatchesParams): Promise<Ap
     details: [],
   };
 
-  // Sanitize show name for filesystem
+  // Sanitize show name for filesystem (Jellyfin problematic characters: <, >, :, ", /, \, |, ?, *)
   const sanitizedShowName = showName.replace(/[<>:"/\\|?*]/g, "-");
+  
+  // Create sanitized show name for file names (remove numbers to avoid Jellyfin confusion)
+  const sanitizedShowNameForFiles = sanitizedShowName.replace(/[0-9]/g, "").replace(/\s+/g, " ").trim();
 
   // Create show directory structure
   const showDir = join(libraryRoot, `${sanitizedShowName} [tmdbid-${showId}]`);
@@ -86,7 +89,7 @@ export const applyMatches = query(async (params: ApplyMatchesParams): Promise<Ap
     const episodeNum = episode.episode_number;
     const sourceFile = join(torrentPath, file.name);
     const fileExt = extname(file.name);
-    const targetFileName = `S${seasonNumber
+    const targetFileName = `${sanitizedShowNameForFiles} - S${seasonNumber
       .toString()
       .padStart(2, "0")}E${episodeNum.toString().padStart(2, "0")}${fileExt}`;
     const targetFile = join(seasonDir, targetFileName);
