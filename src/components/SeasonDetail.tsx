@@ -19,8 +19,7 @@ export default function SeasonDetail() {
   // Helper function to get existing file for an episode
   const getExistingFileForEpisode = (episodeNumber: number): ExistingEpisodeFile | null => {
     const files = existingFiles();
-    if (!files) return null;
-    return files.find(file => file.episode === episodeNumber) || null;
+    return files?.find(file => file.episode === episodeNumber) || null;
   };
   
   const [season] = createResource(
@@ -49,7 +48,7 @@ export default function SeasonDetail() {
         showName: showData.name,
         showId: parseInt(params.id),
         seasonNumber: parseInt(params.seasonNumber),
-        episodes: seasonData.episodes.map((ep: any) => ep.episode_number)
+        episodes: seasonData.episodes.map((ep) => ep.episode_number)
       };
     },
     async (params) => {
