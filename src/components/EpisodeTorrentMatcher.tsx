@@ -624,6 +624,16 @@ export default function EpisodeTorrentMatcher() {
           onClose={() => setResultDialogOpen(false)}
           maxWidth="md"
           fullWidth
+      sx={{
+        "& .MuiDialog-paper": {
+          maxHeight: { xs: "100vh", sm: "90vh" },
+          m: { xs: 0, sm: 2 },
+          maxWidth: { xs: "100vw", sm: "600px" },
+          width: { xs: "100vw", sm: "auto" },
+          height: { xs: "100vh", sm: "auto" },
+          borderRadius: { xs: 0, sm: 1 },
+        },
+      }}
         >
           <DialogTitle>
             {applyResult()?.success ? "Matches Applied Successfully!" : "Error Applying Matches"}
