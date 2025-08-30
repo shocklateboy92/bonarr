@@ -62,7 +62,7 @@ const libraryRoot =
 const generateLibraryPaths = (
   showName: string,
   showId: number,
-  seasonNumber: number
+  seasonNumber: number,
 ) => {
   // Sanitize show name for filesystem (Jellyfin problematic characters: <, >, :, ", /, \, |, ?, *)
   const sanitizedShowName = showName.replace(/[<>:"/\\|?*]/g, "-");
@@ -77,7 +77,7 @@ const generateLibraryPaths = (
   const showDir = join(libraryRoot, `${sanitizedShowName} [tmdbid-${showId}]`);
   const seasonDir = join(
     showDir,
-    `Season ${seasonNumber.toString().padStart(2, "0")}`
+    `Season ${seasonNumber.toString().padStart(2, "0")}`,
   );
 
   return {
@@ -94,7 +94,7 @@ const generateEpisodeFilePath = (
   seasonNumber: number,
   episodeNumber: number,
   seasonDir: string,
-  extension: string = ".mkv"
+  extension: string = ".mkv",
 ) => {
   const targetFileName = `${sanitizedShowNameForFiles} - S${seasonNumber
     .toString()
@@ -123,7 +123,7 @@ export const applyMatches = query(
     const { sanitizedShowNameForFiles, seasonDir } = generateLibraryPaths(
       showName,
       showId,
-      seasonNumber
+      seasonNumber,
     );
 
     try {
@@ -151,7 +151,7 @@ export const applyMatches = query(
         seasonNumber,
         episodeNum,
         seasonDir,
-        fileExt
+        fileExt,
       );
 
       const detail: ApplyMatchesResult["details"][number] = {
@@ -198,7 +198,7 @@ export const applyMatches = query(
 
     return result;
   },
-  "apply-matches"
+  "apply-matches",
 );
 
 export const checkExistingFiles = query(
@@ -211,7 +211,7 @@ export const checkExistingFiles = query(
     const { sanitizedShowNameForFiles, seasonDir } = generateLibraryPaths(
       showName,
       showId,
-      seasonNumber
+      seasonNumber,
     );
 
     const results: ExistingEpisodeFile[] = [];
@@ -227,7 +227,7 @@ export const checkExistingFiles = query(
           seasonNumber,
           episodeNum,
           seasonDir,
-          ext
+          ext,
         );
 
         try {
@@ -252,7 +252,7 @@ export const checkExistingFiles = query(
             seasonNumber,
             episodeNum,
             seasonDir,
-            ".mkv"
+            ".mkv",
           );
 
         foundFile = {
@@ -268,5 +268,5 @@ export const checkExistingFiles = query(
 
     return results.sort((a, b) => a.episode - b.episode);
   },
-  "check-existing-files"
+  "check-existing-files",
 );

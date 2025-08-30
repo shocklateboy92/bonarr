@@ -15,10 +15,14 @@ export default function NotFound() {
             justifyContent: "center",
             minHeight: "60vh",
             textAlign: "center",
-            gap: 3
+            gap: 3,
           }}
         >
-          <Typography variant="h1" component="h1" sx={{ fontSize: "6rem", fontWeight: "bold" }}>
+          <Typography
+            variant="h1"
+            component="h1"
+            sx={{ fontSize: "6rem", fontWeight: "bold" }}
+          >
             404
           </Typography>
           <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
@@ -27,12 +31,7 @@ export default function NotFound() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
             The page you're looking for doesn't exist or has been moved.
           </Typography>
-          <Button
-            component={A}
-            href="/"
-            variant="contained"
-            size="large"
-          >
+          <Button component={A} href="/" variant="contained" size="large">
             Go Home
           </Button>
         </Box>

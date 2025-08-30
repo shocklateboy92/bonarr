@@ -1,23 +1,25 @@
-import createClient from 'openapi-fetch';
-import type { paths } from '../types/tmdb';
+import createClient from "openapi-fetch";
+import type { paths } from "../types/tmdb";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 console.log("TMDB API Key loaded:", TMDB_API_KEY ? "✓ Present" : "✗ Missing");
 
 if (!TMDB_API_KEY) {
-  throw new Error('TMDB API key not found. Please set VITE_TMDB_API_KEY environment variable.');
+  throw new Error(
+    "TMDB API key not found. Please set VITE_TMDB_API_KEY environment variable.",
+  );
 }
 
 const client = createClient<paths>({
-  baseUrl: 'https://api.themoviedb.org',
+  baseUrl: "https://api.themoviedb.org",
   headers: {
     Authorization: `Bearer ${TMDB_API_KEY}`,
   },
 });
 
 export async function searchTVShows(query: string, page = 1) {
-  const { data, error } = await client.GET('/3/search/tv', {
+  const { data, error } = await client.GET("/3/search/tv", {
     params: {
       query: {
         query,
@@ -28,38 +30,50 @@ export async function searchTVShows(query: string, page = 1) {
   });
 
   if (error) {
-    throw new Error(`Failed to search TV shows: ${JSON.stringify(error, null, 2)}`);
+    throw new Error(
+      `Failed to search TV shows: ${JSON.stringify(error, null, 2)}`,
+    );
   }
 
   return data;
 }
 
 export async function getTVShowDetails(id: number) {
-  const { data, error } = await client.GET('/3/tv/{series_id}', {
+  const { data, error } = await client.GET("/3/tv/{series_id}", {
     params: {
       path: { series_id: id },
     },
   });
 
   if (error) {
-    throw new Error(`Failed to fetch TV show details: ${JSON.stringify(error, null, 2)}`);
+    throw new Error(
+      `Failed to fetch TV show details: ${JSON.stringify(error, null, 2)}`,
+    );
   }
 
   return data;
 }
 
-export async function getTVSeasonDetails(seriesId: number, seasonNumber: number) {
-  const { data, error } = await client.GET('/3/tv/{series_id}/season/{season_number}', {
-    params: {
-      path: { 
-        series_id: seriesId,
-        season_number: seasonNumber 
+export async function getTVSeasonDetails(
+  seriesId: number,
+  seasonNumber: number,
+) {
+  const { data, error } = await client.GET(
+    "/3/tv/{series_id}/season/{season_number}",
+    {
+      params: {
+        path: {
+          series_id: seriesId,
+          season_number: seasonNumber,
+        },
       },
     },
-  });
+  );
 
   if (error) {
-    throw new Error(`Failed to fetch TV season details: ${JSON.stringify(error, null, 2)}`);
+    throw new Error(
+      `Failed to fetch TV season details: ${JSON.stringify(error, null, 2)}`,
+    );
   }
 
   return data;

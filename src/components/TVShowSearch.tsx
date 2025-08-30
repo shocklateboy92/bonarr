@@ -22,37 +22,38 @@ import { searchTVShows } from "../api/tmdb";
 export default function TVShowSearch() {
   const [searchQuery, setSearchQuery] = createSignal("");
 
-  const [tvShows, {refetch}] = createResource(
+  const [tvShows, { refetch }] = createResource(
     () => searchQuery().trim(),
     async (q) => {
       if (!q) return null;
       return await searchTVShows(q);
-    }
+    },
   );
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 1, md: 2 } }}>
-      <Box sx={{ 
-        display: "flex", 
-        flexDirection: { xs: "column", sm: "row" },
-        gap: { xs: 1, sm: 2 }, 
-        mb: 3 
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 1, sm: 2 },
+          mb: 3,
+        }}
+      >
         <TextField
           fullWidth
           label="Search TV Shows"
           variant="outlined"
           value={searchQuery()}
-          onChange={e => setSearchQuery(e.target.value)}
-
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
         <Button
           variant="contained"
           onclick={refetch}
           disabled={!searchQuery().trim()}
-          sx={{ 
+          sx={{
             minWidth: { xs: "100%", sm: "auto" },
-            minHeight: { xs: "48px", sm: "auto" }
+            minHeight: { xs: "48px", sm: "auto" },
           }}
         >
           Search
@@ -100,69 +101,75 @@ export default function TVShowSearch() {
 
                 <For each={tvShows().results}>
                   {(show) => (
-                    <A 
+                    <A
                       href={`/show/${show.id}`}
                       style={{ "text-decoration": "none", color: "inherit" }}
                     >
-                      <Card sx={{ 
-                        mb: 2, 
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-                          transform: "translateY(-2px)"
-                        }
-                      }}>
+                      <Card
+                        sx={{
+                          mb: 2,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                            transform: "translateY(-2px)",
+                          },
+                        }}
+                      >
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                        <Box sx={{ 
-                          display: "flex", 
-                          flexDirection: { xs: "column", sm: "row" },
-                          gap: { xs: 2, sm: 2 },
-                          alignItems: { xs: "center", sm: "flex-start" }
-                        }}>
-                          <Show when={show.poster_path}>
-                            <img
-                              src={`https://image.tmdb.org/t/p/w92${show.poster_path}`}
-                              alt={show.name}
-                              style={{
-                                width: "92px",
-                                height: "138px",
-                                "border-radius": "4px",
-                                "flex-shrink": "0"
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", sm: "row" },
+                              gap: { xs: 2, sm: 2 },
+                              alignItems: { xs: "center", sm: "flex-start" },
+                            }}
+                          >
+                            <Show when={show.poster_path}>
+                              <img
+                                src={`https://image.tmdb.org/t/p/w92${show.poster_path}`}
+                                alt={show.name}
+                                style={{
+                                  width: "92px",
+                                  height: "138px",
+                                  "border-radius": "4px",
+                                  "flex-shrink": "0",
+                                }}
+                              />
+                            </Show>
+                            <Box
+                              sx={{
+                                flex: 1,
+                                textAlign: { xs: "center", sm: "left" },
+                                width: { xs: "100%", sm: "auto" },
                               }}
-                            />
-                          </Show>
-                          <Box sx={{ 
-                            flex: 1, 
-                            textAlign: { xs: "center", sm: "left" },
-                            width: { xs: "100%", sm: "auto" }
-                          }}>
-                            <Typography variant="h6" component="h2">
-                              {show.name}
-                            </Typography>
-                            <Show when={show.first_air_date}>
-                              <Typography
-                                variant="subtitle2"
-                                color="text.secondary"
-                              >
-                                First aired: {show.first_air_date}
+                            >
+                              <Typography variant="h6" component="h2">
+                                {show.name}
                               </Typography>
-                            </Show>
-                            <Show when={show.vote_average}>
-                              <Typography
-                                variant="subtitle2"
-                                color="text.secondary"
-                              >
-                                Rating: {show.vote_average?.toFixed(1)}/10
-                              </Typography>
-                            </Show>
-                            <Show when={show.overview}>
-                              <Typography variant="body2" sx={{ mt: 1 }}>
-                                {show.overview}
-                              </Typography>
-                            </Show>
+                              <Show when={show.first_air_date}>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                >
+                                  First aired: {show.first_air_date}
+                                </Typography>
+                              </Show>
+                              <Show when={show.vote_average}>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                >
+                                  Rating: {show.vote_average?.toFixed(1)}/10
+                                </Typography>
+                              </Show>
+                              <Show when={show.overview}>
+                                <Typography variant="body2" sx={{ mt: 1 }}>
+                                  {show.overview}
+                                </Typography>
+                              </Show>
+                            </Box>
                           </Box>
-                        </Box>
                         </CardContent>
                       </Card>
                     </A>

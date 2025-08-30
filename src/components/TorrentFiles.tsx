@@ -17,24 +17,28 @@ import {
   TableRow,
   Paper,
 } from "@suid/material";
-import { 
+import {
   ArrowBack,
   Folder,
   InsertDriveFile,
   CheckCircle,
   Cancel,
 } from "@suid/icons-material";
-import { transmissionClient, TorrentWithFiles, TorrentFile } from "../api/transmission";
+import {
+  transmissionClient,
+  TorrentWithFiles,
+  TorrentFile,
+} from "../api/transmission";
 
 export default function TorrentFiles() {
   const params = useParams();
-  
+
   const [torrent] = createResource(
     () => params.torrentId,
     async (torrentId) => {
       if (!torrentId) return null;
       return await transmissionClient.getTorrentFiles(parseInt(torrentId));
-    }
+    },
   );
 
   const formatDate = (timestamp: number) => {
@@ -42,33 +46,33 @@ export default function TorrentFiles() {
   };
 
   const getFileIcon = (filename: string) => {
-    if (filename.includes('/')) {
+    if (filename.includes("/")) {
       return <Folder color="primary" />;
     }
     return <InsertDriveFile />;
   };
 
   const getFileExtension = (filename: string) => {
-    const parts = filename.split('.');
-    return parts.length > 1 ? parts.pop()?.toLowerCase() || '' : '';
+    const parts = filename.split(".");
+    return parts.length > 1 ? parts.pop()?.toLowerCase() || "" : "";
   };
 
   const organizeFiles = (files: TorrentFile[]) => {
     const organized: { [path: string]: TorrentFile[] } = {};
-    
-    files.forEach(file => {
-      const pathParts = file.name.split('/');
+
+    files.forEach((file) => {
+      const pathParts = file.name.split("/");
       if (pathParts.length > 1) {
-        const directory = pathParts.slice(0, -1).join('/');
+        const directory = pathParts.slice(0, -1).join("/");
         if (!organized[directory]) {
           organized[directory] = [];
         }
         organized[directory].push(file);
       } else {
-        if (!organized['root']) {
-          organized['root'] = [];
+        if (!organized["root"]) {
+          organized["root"] = [];
         }
-        organized['root'].push(file);
+        organized["root"].push(file);
       }
     });
 
@@ -77,15 +81,17 @@ export default function TorrentFiles() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
-      <Box sx={{ 
-        mb: 3, 
-        display: "flex", 
-        flexDirection: { xs: "column", sm: "row" },
-        gap: { xs: 1, sm: 2 } 
-      }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 1, sm: 2 },
+        }}
+      >
         <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
-          <Button 
-            startIcon={<ArrowBack />} 
+          <Button
+            startIcon={<ArrowBack />}
             variant="outlined"
             sx={{ minHeight: "48px" }}
           >
@@ -93,15 +99,14 @@ export default function TorrentFiles() {
           </Button>
         </A>
         <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
-          <Button 
-            variant="outlined"
-            sx={{ minHeight: "48px" }}
-          >
+          <Button variant="outlined" sx={{ minHeight: "48px" }}>
             Back to Season
           </Button>
         </A>
-        <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents/${params.torrentId}/match`}>
-          <Button 
+        <A
+          href={`/show/${params.id}/season/${params.seasonNumber}/torrents/${params.torrentId}/match`}
+        >
+          <Button
             variant="contained"
             color="primary"
             sx={{ minHeight: "48px" }}
@@ -137,20 +142,24 @@ export default function TorrentFiles() {
               {/* Torrent Info Header */}
               <Card sx={{ mb: 3 }}>
                 <CardContent>
-                  <Typography 
-                    variant="h4" 
-                    component="h1" 
-                    sx={{ 
+                  <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
                       mb: 2,
-                      fontSize: { xs: "1.5rem", md: "2.125rem" }
+                      fontSize: { xs: "1.5rem", md: "2.125rem" },
                     }}
                   >
                     {torrentData().name}
                   </Typography>
-                  
-                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+
+                  <Box
+                    sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}
+                  >
                     <Chip
-                      label={transmissionClient.getStatusLabel(torrentData().status)}
+                      label={transmissionClient.getStatusLabel(
+                        torrentData().status,
+                      )}
                       color="primary"
                       size="small"
                     />
@@ -160,7 +169,9 @@ export default function TorrentFiles() {
                       size="small"
                     />
                     <Chip
-                      label={transmissionClient.formatBytes(torrentData().totalSize)}
+                      label={transmissionClient.formatBytes(
+                        torrentData().totalSize,
+                      )}
                       variant="outlined"
                       size="small"
                     />
@@ -172,8 +183,8 @@ export default function TorrentFiles() {
                   </Box>
 
                   <Box sx={{ mb: 2 }}>
-                    <LinearProgress 
-                      variant="determinate" 
+                    <LinearProgress
+                      variant="determinate"
                       value={torrentData().percentDone * 100}
                       sx={{ height: 8, borderRadius: 4 }}
                     />
@@ -191,26 +202,37 @@ export default function TorrentFiles() {
               {/* Files List */}
               <Card>
                 <CardContent>
-                  <Typography 
-                    variant="h5" 
-                    component="h2" 
-                    sx={{ 
+                  <Typography
+                    variant="h5"
+                    component="h2"
+                    sx={{
                       mb: 2,
-                      fontSize: { xs: "1.25rem", md: "1.5rem" }
+                      fontSize: { xs: "1.25rem", md: "1.5rem" },
                     }}
                   >
                     Files ({torrentData().files?.length || 0})
                   </Typography>
 
-                  <Show when={!torrentData().files || torrentData().files!.length === 0}>
-                    <Typography sx={{ textAlign: "center", py: 4 }} color="text.secondary">
+                  <Show
+                    when={
+                      !torrentData().files || torrentData().files!.length === 0
+                    }
+                  >
+                    <Typography
+                      sx={{ textAlign: "center", py: 4 }}
+                      color="text.secondary"
+                    >
                       No files information available for this torrent.
                     </Typography>
                   </Show>
 
-                  <Show when={torrentData().files && torrentData().files!.length > 0}>
-                    <TableContainer 
-                      component={Paper} 
+                  <Show
+                    when={
+                      torrentData().files && torrentData().files!.length > 0
+                    }
+                  >
+                    <TableContainer
+                      component={Paper}
                       variant="outlined"
                       sx={{ overflowX: "auto" }}
                     >
@@ -227,26 +249,50 @@ export default function TorrentFiles() {
                         <TableBody>
                           <For each={torrentData().files}>
                             {(file, index) => {
-                              const fileStats = torrentData().fileStats?.[index()] || { 
-                                bytesCompleted: file.bytesCompleted, 
-                                wanted: file.wanted, 
-                                priority: file.priority 
+                              const fileStats = torrentData().fileStats?.[
+                                index()
+                              ] || {
+                                bytesCompleted: file.bytesCompleted,
+                                wanted: file.wanted,
+                                priority: file.priority,
                               };
-                              const progress = file.length > 0 ? (fileStats.bytesCompleted / file.length) * 100 : 0;
-                              const fileName = file.name.split('/').pop() || file.name;
-                              const directory = file.name.includes('/') ? file.name.substring(0, file.name.lastIndexOf('/')) : '';
-                              
+                              const progress =
+                                file.length > 0
+                                  ? (fileStats.bytesCompleted / file.length) *
+                                    100
+                                  : 0;
+                              const fileName =
+                                file.name.split("/").pop() || file.name;
+                              const directory = file.name.includes("/")
+                                ? file.name.substring(
+                                    0,
+                                    file.name.lastIndexOf("/"),
+                                  )
+                                : "";
+
                               return (
                                 <TableRow>
                                   <TableCell>
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                      }}
+                                    >
                                       {getFileIcon(file.name)}
                                       <Box>
-                                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontWeight: "medium" }}
+                                        >
                                           {fileName}
                                         </Typography>
                                         <Show when={directory}>
-                                          <Typography variant="caption" color="text.secondary">
+                                          <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                          >
                                             {directory}
                                           </Typography>
                                         </Show>
@@ -255,18 +301,33 @@ export default function TorrentFiles() {
                                   </TableCell>
                                   <TableCell align="right">
                                     <Typography variant="body2">
-                                      {transmissionClient.formatBytes(file.length)}
+                                      {transmissionClient.formatBytes(
+                                        file.length,
+                                      )}
                                     </Typography>
                                   </TableCell>
                                   <TableCell align="right">
                                     <Box sx={{ minWidth: 120 }}>
-                                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                        <LinearProgress 
-                                          variant="determinate" 
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 1,
+                                        }}
+                                      >
+                                        <LinearProgress
+                                          variant="determinate"
                                           value={progress}
-                                          sx={{ flex: 1, height: 6, borderRadius: 3 }}
+                                          sx={{
+                                            flex: 1,
+                                            height: 6,
+                                            borderRadius: 3,
+                                          }}
                                         />
-                                        <Typography variant="caption" sx={{ minWidth: 35 }}>
+                                        <Typography
+                                          variant="caption"
+                                          sx={{ minWidth: 35 }}
+                                        >
                                           {progress.toFixed(0)}%
                                         </Typography>
                                       </Box>
@@ -274,16 +335,36 @@ export default function TorrentFiles() {
                                   </TableCell>
                                   <TableCell align="center">
                                     {fileStats.wanted ? (
-                                      <CheckCircle color="success" fontSize="small" />
+                                      <CheckCircle
+                                        color="success"
+                                        fontSize="small"
+                                      />
                                     ) : (
-                                      <Cancel color="disabled" fontSize="small" />
+                                      <Cancel
+                                        color="disabled"
+                                        fontSize="small"
+                                      />
                                     )}
                                   </TableCell>
                                   <TableCell align="center">
-                                    <Chip 
-                                      label={fileStats.priority === 1 ? 'High' : fileStats.priority === 0 ? 'Normal' : fileStats.priority === -1 ? 'Low' : 'Normal'}
+                                    <Chip
+                                      label={
+                                        fileStats.priority === 1
+                                          ? "High"
+                                          : fileStats.priority === 0
+                                            ? "Normal"
+                                            : fileStats.priority === -1
+                                              ? "Low"
+                                              : "Normal"
+                                      }
                                       size="small"
-                                      color={fileStats.priority === 1 ? 'error' : fileStats.priority === -1 ? 'default' : 'primary'}
+                                      color={
+                                        fileStats.priority === 1
+                                          ? "error"
+                                          : fileStats.priority === -1
+                                            ? "default"
+                                            : "primary"
+                                      }
                                     />
                                   </TableCell>
                                 </TableRow>

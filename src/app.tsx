@@ -10,9 +10,7 @@ export default function App() {
       root={(props) => (
         <MetaProvider>
           <Title>Bonarr - TV Show Manager</Title>
-          <Suspense>
-            {props.children}
-          </Suspense>
+          <Suspense>{props.children}</Suspense>
         </MetaProvider>
       )}
     >

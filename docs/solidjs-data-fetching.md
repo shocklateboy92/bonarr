@@ -22,14 +22,14 @@ SolidJS provides `createResource` as a specialized utility for handling asynchro
 ### Without Source Signal
 
 ```javascript
-const [data, { mutate, refetch }] = createResource(fetchData)
+const [data, { mutate, refetch }] = createResource(fetchData);
 ```
 
 ### With Source Signal (Reactive Dependency)
 
 ```javascript
-const [sourceSignal, setSourceSignal] = createSignal('')
-const [data, { mutate, refetch }] = createResource(sourceSignal, fetchData)
+const [sourceSignal, setSourceSignal] = createSignal("");
+const [data, { mutate, refetch }] = createResource(sourceSignal, fetchData);
 ```
 
 The source signal will retrigger the fetcher whenever it changes, and its value will be passed to the fetcher function.
@@ -56,7 +56,7 @@ The second return value provides additional methods:
 ### Using Switch/Match for Comprehensive State Handling
 
 ```javascript
-import { Switch, Match } from 'solid-js'
+import { Switch, Match } from "solid-js";
 
 <Switch>
   <Match when={data.loading}>
@@ -68,7 +68,7 @@ import { Switch, Match } from 'solid-js'
   <Match when={data()}>
     <div>{/* Render your data */}</div>
   </Match>
-</Switch>
+</Switch>;
 ```
 
 ### Using Show Components
@@ -98,15 +98,15 @@ import { Show } from 'solid-js'
 ```javascript
 const [data] = createResource(async () => {
   try {
-    const response = await fetch('/api/data')
+    const response = await fetch("/api/data");
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    return response.json()
+    return response.json();
   } catch (error) {
-    throw error // Let createResource handle it
+    throw error; // Let createResource handle it
   }
-})
+});
 ```
 
 ### Using ErrorBoundary
@@ -114,11 +114,11 @@ const [data] = createResource(async () => {
 For anticipated errors, wrap `createResource` usage in an ErrorBoundary:
 
 ```javascript
-import { ErrorBoundary } from 'solid-js'
+import { ErrorBoundary } from "solid-js";
 
 <ErrorBoundary fallback={<div>Something went wrong</div>}>
   <MyComponentWithResource />
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ## Loading States with Suspense
@@ -126,12 +126,12 @@ import { ErrorBoundary } from 'solid-js'
 For managing multiple async operations, use Suspense:
 
 ```javascript
-import { Suspense } from 'solid-js'
+import { Suspense } from "solid-js";
 
 <Suspense fallback={<div>Loading...</div>}>
   <ComponentWithResource />
   <AnotherComponentWithResource />
-</Suspense>
+</Suspense>;
 ```
 
 ## Advanced Patterns
@@ -139,40 +139,40 @@ import { Suspense } from 'solid-js'
 ### Conditional Fetching
 
 ```javascript
-const [shouldFetch, setShouldFetch] = createSignal(false)
+const [shouldFetch, setShouldFetch] = createSignal(false);
 const [data] = createResource(shouldFetch, async (fetch) => {
-  if (!fetch) return null
-  return await fetchData()
-})
+  if (!fetch) return null;
+  return await fetchData();
+});
 ```
 
 ### Optimistic Updates with Mutate
 
 ```javascript
-const [todos, { mutate }] = createResource(fetchTodos)
+const [todos, { mutate }] = createResource(fetchTodos);
 
 const addTodo = async (newTodo) => {
   // Optimistic update
-  mutate(prev => [...(prev || []), newTodo])
-  
+  mutate((prev) => [...(prev || []), newTodo]);
+
   try {
-    await postTodo(newTodo)
+    await postTodo(newTodo);
   } catch (error) {
     // Revert on error
-    mutate(prev => prev?.slice(0, -1))
-    throw error
+    mutate((prev) => prev?.slice(0, -1));
+    throw error;
   }
-}
+};
 ```
 
 ### Manual Refetch
 
 ```javascript
-const [data, { refetch }] = createResource(fetchData)
+const [data, { refetch }] = createResource(fetchData);
 
 const handleRefresh = () => {
-  refetch() // Manually reload data
-}
+  refetch(); // Manually reload data
+};
 ```
 
 ## Common Pitfalls to Avoid
@@ -193,19 +193,19 @@ const handleRefresh = () => {
 
 ```typescript
 interface User {
-  id: number
-  name: string
-  email: string
+  id: number;
+  name: string;
+  email: string;
 }
 
-const [userId, setUserId] = createSignal<number>()
+const [userId, setUserId] = createSignal<number>();
 const [user] = createResource<User | null, number>(
-  userId, 
+  userId,
   async (id): Promise<User> => {
-    const response = await fetch(`/api/users/${id}`)
-    return response.json()
-  }
-)
+    const response = await fetch(`/api/users/${id}`);
+    return response.json();
+  },
+);
 ```
 
 ## Conclusion

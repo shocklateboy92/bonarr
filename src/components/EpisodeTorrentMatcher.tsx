@@ -52,9 +52,9 @@ export default function EpisodeTorrentMatcher() {
       if (!seriesId || !seasonNumber) return null;
       return await getTVSeasonDetails(
         parseInt(seriesId),
-        parseInt(seasonNumber)
+        parseInt(seasonNumber),
       );
-    }
+    },
   );
 
   const [show] = createResource(
@@ -62,7 +62,7 @@ export default function EpisodeTorrentMatcher() {
     async (seriesId) => {
       if (!seriesId) return null;
       return await getTVShowDetails(parseInt(seriesId));
-    }
+    },
   );
 
   const [torrent] = createResource(
@@ -70,22 +70,24 @@ export default function EpisodeTorrentMatcher() {
     async (torrentId) => {
       if (!torrentId) return null;
       return await transmissionClient.getTorrentFiles(parseInt(torrentId));
-    }
+    },
   );
 
   const [matches, setMatches] = createSignal<EpisodeMatch[]>([]);
   const [modalOpen, setModalOpen] = createSignal(false);
   const [selectedEpisode, setSelectedEpisode] = createSignal<any>(null);
-  
+
   // Apply matches state
   const [isApplying, setIsApplying] = createSignal(false);
-  const [applyResult, setApplyResult] = createSignal<ApplyMatchesResult | null>(null);
+  const [applyResult, setApplyResult] = createSignal<ApplyMatchesResult | null>(
+    null,
+  );
   const [resultDialogOpen, setResultDialogOpen] = createSignal(false);
 
   // Auto-matching logic
   const matchEpisodesWithFiles = (episodes: any[], files: TorrentFile[]) => {
     const videoFiles = files.filter((file) =>
-      /\.(mkv|mp4|avi|m4v|mov|wmv|flv|webm|ts|m2ts)$/i.test(file.name)
+      /\.(mkv|mp4|avi|m4v|mov|wmv|flv|webm|ts|m2ts)$/i.test(file.name),
     );
 
     return episodes.map((episode) => {
@@ -143,7 +145,7 @@ export default function EpisodeTorrentMatcher() {
     if (seasonData?.episodes && torrentData?.files) {
       const newMatches = matchEpisodesWithFiles(
         seasonData.episodes,
-        torrentData.files
+        torrentData.files,
       );
       setMatches(newMatches);
     }
@@ -205,19 +207,23 @@ export default function EpisodeTorrentMatcher() {
         return {
           ...match,
           file,
-          confidence: (file ? 'medium' : 'none') as 'high' | 'medium' | 'low' | 'none',
+          confidence: (file ? "medium" : "none") as
+            | "high"
+            | "medium"
+            | "low"
+            | "none",
           fileIndex: undefined, // Reset since this is manual selection
         };
       }
       return match;
     });
-    
+
     setMatches(updatedMatches);
   };
 
   const getCurrentFileForEpisode = (episode: any): TorrentFile | null => {
     const match = matches().find(
-      (m) => m.episode.episode_number === episode.episode_number
+      (m) => m.episode.episode_number === episode.episode_number,
     );
     return match?.file || null;
   };
@@ -225,26 +231,26 @@ export default function EpisodeTorrentMatcher() {
   const getNextEpisode = (currentEpisode: any): any | null => {
     const seasonData = season();
     if (!seasonData?.episodes) return null;
-    
+
     const currentIndex = seasonData.episodes.findIndex(
-      (ep: any) => ep.episode_number === currentEpisode.episode_number
+      (ep: any) => ep.episode_number === currentEpisode.episode_number,
     );
-    
+
     if (currentIndex === -1 || currentIndex >= seasonData.episodes.length - 1) {
       return null;
     }
-    
+
     return seasonData.episodes[currentIndex + 1];
   };
 
   const handleFileSelectAndNext = (file: TorrentFile | null) => {
     // First, select the file for current episode
     handleFileSelect(file);
-    
+
     // Then move to next episode
     const currentEpisode = selectedEpisode();
     if (!currentEpisode) return;
-    
+
     const nextEpisode = getNextEpisode(currentEpisode);
     if (nextEpisode) {
       setSelectedEpisode(nextEpisode);
@@ -259,23 +265,25 @@ export default function EpisodeTorrentMatcher() {
     const seasonData = season();
     const showData = show();
     const torrentData = torrent();
-    
+
     if (!seasonData || !showData || !torrentData || isApplying()) return;
 
     setIsApplying(true);
-    
+
     try {
-      const matchesToApply = matches().map(match => ({
+      const matchesToApply = matches().map((match) => ({
         episode: {
           episode_number: match.episode.episode_number,
           season_number: parseInt(params.seasonNumber || "1"),
           name: match.episode.name,
         },
-        file: match.file ? {
-          name: match.file.name,
-          length: match.file.length,
-        } : null,
-        confidence: match.confidence
+        file: match.file
+          ? {
+              name: match.file.name,
+              length: match.file.length,
+            }
+          : null,
+        confidence: match.confidence,
       }));
 
       const result = await applyMatches({
@@ -294,7 +302,7 @@ export default function EpisodeTorrentMatcher() {
         success: false,
         processedCount: 0,
         errors: [`Failed to apply matches: ${error}`],
-        details: []
+        details: [],
       });
       setResultDialogOpen(true);
     } finally {
@@ -337,7 +345,10 @@ export default function EpisodeTorrentMatcher() {
       >
         <Show when={season.error || show.error || torrent.error}>
           <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
-            Error: {season.error?.message || show.error?.message || torrent.error?.message}
+            Error:{" "}
+            {season.error?.message ||
+              show.error?.message ||
+              torrent.error?.message}
           </Typography>
         </Show>
 
@@ -516,7 +527,7 @@ export default function EpisodeTorrentMatcher() {
                                 />
                                 <Chip
                                   label={transmissionClient.formatBytes(
-                                    match.file?.length || 0
+                                    match.file?.length || 0,
                                   )}
                                   variant="outlined"
                                   size="small"
@@ -528,7 +539,7 @@ export default function EpisodeTorrentMatcher() {
                                   >
                                     {match.file?.name.substring(
                                       0,
-                                      match.file.name.lastIndexOf("/")
+                                      match.file.name.lastIndexOf("/"),
                                     )}
                                   </Typography>
                                 </Show>
@@ -624,30 +635,33 @@ export default function EpisodeTorrentMatcher() {
           onClose={() => setResultDialogOpen(false)}
           maxWidth="md"
           fullWidth
-      sx={{
-        "& .MuiDialog-paper": {
-          maxHeight: { xs: "100vh", sm: "90vh" },
-          m: { xs: 0, sm: 2 },
-          maxWidth: { xs: "100vw", sm: "600px" },
-          width: { xs: "100vw", sm: "auto" },
-          height: { xs: "100vh", sm: "auto" },
-          borderRadius: { xs: 0, sm: 1 },
-        },
-      }}
+          sx={{
+            "& .MuiDialog-paper": {
+              maxHeight: { xs: "100vh", sm: "90vh" },
+              m: { xs: 0, sm: 2 },
+              maxWidth: { xs: "100vw", sm: "600px" },
+              width: { xs: "100vw", sm: "auto" },
+              height: { xs: "100vh", sm: "auto" },
+              borderRadius: { xs: 0, sm: 1 },
+            },
+          }}
         >
           <DialogTitle>
-            {applyResult()?.success ? "Matches Applied Successfully!" : "Error Applying Matches"}
+            {applyResult()?.success
+              ? "Matches Applied Successfully!"
+              : "Error Applying Matches"}
           </DialogTitle>
           <DialogContent>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 {applyResult()?.success
                   ? `Successfully created ${applyResult()?.processedCount} hard links.`
-                  : "Some errors occurred while applying matches."
-                }
+                  : "Some errors occurred while applying matches."}
               </Typography>
-              
-              <Show when={applyResult()?.errors && applyResult()!.errors.length > 0}>
+
+              <Show
+                when={applyResult()?.errors && applyResult()!.errors.length > 0}
+              >
                 <Alert severity="error" sx={{ mb: 2 }}>
                   <Typography variant="body2" component="div">
                     <strong>Errors:</strong>
@@ -661,7 +675,9 @@ export default function EpisodeTorrentMatcher() {
               </Show>
             </Box>
 
-            <Show when={applyResult()?.details && applyResult()!.details.length > 0}>
+            <Show
+              when={applyResult()?.details && applyResult()!.details.length > 0}
+            >
               <Typography variant="h6" sx={{ mb: 1 }}>
                 Details:
               </Typography>
@@ -691,7 +707,10 @@ export default function EpisodeTorrentMatcher() {
                               )}
                             </Typography>
                             {detail.sourceFile && (
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 Source: {detail.sourceFile}
                               </Typography>
                             )}
@@ -705,9 +724,7 @@ export default function EpisodeTorrentMatcher() {
             </Show>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setResultDialogOpen(false)}>
-              Close
-            </Button>
+            <Button onClick={() => setResultDialogOpen(false)}>Close</Button>
           </DialogActions>
         </Dialog>
       </Show>

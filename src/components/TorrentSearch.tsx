@@ -35,7 +35,7 @@ export default function TorrentSearch() {
   const [query, setQuery] = createSignal(
     Array.isArray(searchParams.q)
       ? searchParams.q[0] || ""
-      : searchParams.q || ""
+      : searchParams.q || "",
   );
 
   // Toast notifications
@@ -47,7 +47,7 @@ export default function TorrentSearch() {
 
   const [searchResults, { refetch }] = createResource(
     () => query()?.trim(),
-    (searchQuery) => searchTorrents(searchQuery, TV_CATEGORIES)
+    (searchQuery) => searchTorrents(searchQuery, TV_CATEGORIES),
   );
 
   const handleSearch = () => {
@@ -71,7 +71,7 @@ export default function TorrentSearch() {
 
   const showNotification = (
     message: string,
-    severity: "error" | "success" | "info" | "warning" = "info"
+    severity: "error" | "success" | "info" | "warning" = "info",
   ) => {
     setNotificationMessage(message);
     setNotificationSeverity(severity);
@@ -85,23 +85,23 @@ export default function TorrentSearch() {
       const downloadDir = import.meta.env.VITE_TORRENT_FILTER_PATH;
       const result = await transmissionClient.addTorrent(
         magnetUrl,
-        downloadDir
+        downloadDir,
       );
 
       if (result.id) {
         // Successfully added, navigate to the torrent files page
         showNotification(
           `Successfully added torrent: ${torrentName}`,
-          "success"
+          "success",
         );
         navigate(
-          `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`
+          `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`,
         );
       } else {
         // Might be a duplicate or other issue
         showNotification(
           `Torrent "${torrentName}" may already exist or could not be added`,
-          "warning"
+          "warning",
         );
       }
     } catch (error) {
@@ -110,7 +110,7 @@ export default function TorrentSearch() {
         error instanceof Error ? error.message : "Unknown error occurred";
       showNotification(
         `Failed to add torrent "${torrentName}": ${errorMessage}`,
-        "error"
+        "error",
       );
     }
   };
@@ -355,7 +355,7 @@ export default function TorrentSearch() {
                             onClick={() =>
                               handleDownload(
                                 result.magnetUrl || result.downloadUrl,
-                                result.title
+                                result.title,
                               )
                             }
                             disabled={!result.magnetUrl && !result.downloadUrl}

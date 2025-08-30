@@ -46,7 +46,7 @@ interface FileSelectionModalProps {
 export default function FileSelectionModal(props: FileSelectionModalProps) {
   const [searchQuery, setSearchQuery] = createSignal("");
   const [selectedFile, setSelectedFile] = createSignal<TorrentFile | null>(
-    props.currentFile
+    props.currentFile,
   );
 
   // Update selected file when episode changes (for next episode workflow)
@@ -56,7 +56,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
 
   const videoFiles = createMemo(() => {
     return props.files.filter((file) =>
-      /\.(mkv|mp4|avi|m4v|mov|wmv|flv|webm|ts|m2ts)$/i.test(file.name)
+      /\.(mkv|mp4|avi|m4v|mov|wmv|flv|webm|ts|m2ts)$/i.test(file.name),
     );
   });
 
@@ -65,7 +65,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
     if (!query) return videoFiles();
 
     return videoFiles().filter((file) =>
-      file.name.toLowerCase().includes(query)
+      file.name.toLowerCase().includes(query),
     );
   });
 
@@ -218,7 +218,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
               </Typography>
               <Chip
                 label={transmissionClient.formatBytes(
-                  props.currentFile?.length || 0
+                  props.currentFile?.length || 0,
                 )}
                 size="small"
                 variant="outlined"
@@ -327,14 +327,16 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
                                     </Typography>
                                     <Chip
                                       label={transmissionClient.formatBytes(
-                                        file.length
+                                        file.length,
                                       )}
                                       size="small"
                                       variant="outlined"
                                     />
                                     <Show when={getFileExtension(file.name)}>
                                       <Chip
-                                        label={getFileExtension(file.name).toUpperCase()}
+                                        label={getFileExtension(
+                                          file.name,
+                                        ).toUpperCase()}
                                         size="small"
                                         color="secondary"
                                       />
@@ -355,13 +357,15 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ 
-        px: { xs: 1, sm: 3 }, 
-        pb: { xs: 1, sm: 3 },
-        pt: { xs: 1, sm: 2 }
-      }}>
-        <Button 
-          onClick={handleCancel} 
+      <DialogActions
+        sx={{
+          px: { xs: 1, sm: 3 },
+          pb: { xs: 1, sm: 3 },
+          pt: { xs: 1, sm: 2 },
+        }}
+      >
+        <Button
+          onClick={handleCancel}
           color="inherit"
           sx={{ display: { xs: "none", sm: "inline-flex" } }}
         >

@@ -50,9 +50,7 @@ export default function TVShowSearch() {
         {(data) => (
           <>
             <h3>Found {data().total_results} results</h3>
-            <For each={data()?.results}>
-              {(show) => <div>{show.name}</div>}
-            </For>
+            <For each={data()?.results}>{(show) => <div>{show.name}</div>}</For>
           </>
         )}
       </Show>
@@ -73,6 +71,7 @@ const [tvShows] = createResource(query, async (q) => {
 ```
 
 **Benefits:**
+
 - Prevents API calls when there's no search query
 - Returns null for empty states, which can be easily handled in rendering
 
@@ -80,10 +79,11 @@ const [tvShows] = createResource(query, async (q) => {
 
 ```javascript
 const [searchQuery, setSearchQuery] = createSignal(""); // User input
-const [query, setQuery] = createSignal("");             // Actual fetch trigger
+const [query, setQuery] = createSignal(""); // Actual fetch trigger
 ```
 
 **Benefits:**
+
 - Prevents API calls on every keystroke
 - Gives user control over when to actually search
 - Separates concerns between UI state and data fetching
@@ -100,6 +100,7 @@ const [query, setQuery] = createSignal("");             // Actual fetch trigger
 ```
 
 **Benefits:**
+
 - TypeScript knows data is not null inside the callback
 - Cleaner code without repeated null checks
 
@@ -123,7 +124,7 @@ import { Switch, Match } from "solid-js";
   <Match when={!query()}>
     <EmptyState message="Enter a search term to begin" />
   </Match>
-</Switch>
+</Switch>;
 ```
 
 ### Debounced Search Pattern
@@ -157,16 +158,14 @@ export default function DebouncedSearch() {
         onInput={(e) => setSearchInput(e.target.value)}
         placeholder="Search as you type..."
       />
-      
+
       <Show when={results.loading}>
         <div>Searching...</div>
       </Show>
-      
+
       <Show when={results()}>
         {(data) => (
-          <For each={data().results}>
-            {(item) => <div>{item.name}</div>}
-          </For>
+          <For each={data().results}>{(item) => <div>{item.name}</div>}</For>
         )}
       </Show>
     </div>
@@ -182,9 +181,9 @@ export default function PaginatedResults() {
   const [searchTerm, setSearchTerm] = createSignal("");
 
   // Combine multiple signals into a single source
-  const searchParams = () => ({ 
-    query: searchTerm(), 
-    page: page() 
+  const searchParams = () => ({
+    query: searchTerm(),
+    page: page(),
   });
 
   const [results] = createResource(searchParams, async (params) => {
@@ -198,26 +197,26 @@ export default function PaginatedResults() {
         value={searchTerm()}
         onInput={(e) => setSearchTerm(e.target.value)}
       />
-      
+
       <Show when={results()}>
         {(data) => (
           <>
-            <For each={data().results}>
-              {(item) => <div>{item.name}</div>}
-            </For>
-            
+            <For each={data().results}>{(item) => <div>{item.name}</div>}</For>
+
             {/* Pagination controls */}
-            <button 
-              onClick={() => setPage(p => Math.max(1, p - 1))}
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page() === 1}
             >
               Previous
             </button>
-            
-            <span>Page {page()} of {data().total_pages}</span>
-            
-            <button 
-              onClick={() => setPage(p => p + 1)}
+
+            <span>
+              Page {page()} of {data().total_pages}
+            </span>
+
+            <button
+              onClick={() => setPage((p) => p + 1)}
               disabled={page() >= data().total_pages}
             >
               Next
@@ -239,14 +238,14 @@ export default function OptimisticList() {
   const addItem = async (newItem) => {
     // Optimistically add to UI
     const previousItems = items();
-    mutate(prev => [...(prev || []), { ...newItem, id: Date.now() }]);
+    mutate((prev) => [...(prev || []), { ...newItem, id: Date.now() }]);
 
     try {
       const savedItem = await createItem(newItem);
       // Replace temporary item with server response
-      mutate(prev => prev?.map(item => 
-        item.id === newItem.id ? savedItem : item
-      ));
+      mutate((prev) =>
+        prev?.map((item) => (item.id === newItem.id ? savedItem : item)),
+      );
     } catch (error) {
       // Revert on error
       mutate(previousItems);
@@ -256,7 +255,7 @@ export default function OptimisticList() {
 
   const deleteItem = async (itemId) => {
     const previousItems = items();
-    mutate(prev => prev?.filter(item => item.id !== itemId));
+    mutate((prev) => prev?.filter((item) => item.id !== itemId));
 
     try {
       await deleteItemAPI(itemId);
@@ -274,18 +273,14 @@ export default function OptimisticList() {
             {(item) => (
               <div>
                 {item.name}
-                <button onClick={() => deleteItem(item.id)}>
-                  Delete
-                </button>
+                <button onClick={() => deleteItem(item.id)}>Delete</button>
               </div>
             )}
           </For>
         )}
       </Show>
-      
-      <button onClick={() => addItem({ name: "New Item" })}>
-        Add Item
-      </button>
+
+      <button onClick={() => addItem({ name: "New Item" })}>Add Item</button>
     </div>
   );
 }
@@ -308,11 +303,8 @@ function ErrorDisplay({ error, onRetry }) {
 
 // Usage
 <Show when={data.error}>
-  <ErrorDisplay 
-    error={data.error} 
-    onRetry={() => refetch()} 
-  />
-</Show>
+  <ErrorDisplay error={data.error} onRetry={() => refetch()} />
+</Show>;
 ```
 
 ### Network-Specific Error Handling
@@ -320,17 +312,19 @@ function ErrorDisplay({ error, onRetry }) {
 ```javascript
 const [data] = createResource(async () => {
   try {
-    const response = await fetch('/api/data');
-    
+    const response = await fetch("/api/data");
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     if (error instanceof TypeError) {
       // Network error
-      throw new Error("Network connection failed. Please check your internet connection.");
+      throw new Error(
+        "Network connection failed. Please check your internet connection.",
+      );
     }
     throw error; // Re-throw other errors
   }
@@ -346,9 +340,9 @@ const [data] = createResource(async () => {
 const params = () => ({ query: search(), page: currentPage() });
 
 // Good: Use createMemo for complex computations
-const params = createMemo(() => ({ 
-  query: search(), 
-  page: currentPage() 
+const params = createMemo(() => ({
+  query: search(),
+  page: currentPage(),
 }));
 ```
 

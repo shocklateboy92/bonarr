@@ -12,7 +12,7 @@ console.log("Prowlarr API configured:", {
 
 if (!PROWLARR_API_KEY) {
   throw new Error(
-    "Prowlarr API key not found. Please set VITE_PROWLARR_API_KEY environment variable."
+    "Prowlarr API key not found. Please set VITE_PROWLARR_API_KEY environment variable.",
   );
 }
 
@@ -35,7 +35,7 @@ export async function searchTorrents(query: string, categories?: number[]) {
 
   if (error) {
     throw new Error(
-      `Failed to search torrents: ${JSON.stringify(error, null, 2)}`
+      `Failed to search torrents: ${JSON.stringify(error, null, 2)}`,
     );
   }
 
