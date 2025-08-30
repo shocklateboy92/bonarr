@@ -197,6 +197,25 @@ class TransmissionRPCClient {
     return response.arguments.torrents[0] as TorrentWithFiles;
   }
 
+  async addTorrent(magnetUrl: string, downloadDir?: string): Promise<{ id?: number; name?: string; hashString?: string }> {
+    const args: any = {
+      filename: magnetUrl
+    };
+
+    if (downloadDir) {
+      args['download-dir'] = downloadDir;
+    }
+
+    const response = await this.makeRequest('torrent-add', args);
+
+    if (response.result !== 'success') {
+      throw new Error(`Failed to add torrent: ${response.result}`);
+    }
+
+    // Return torrent info (either torrent-added or torrent-duplicate)
+    return response.arguments['torrent-added'] || response.arguments['torrent-duplicate'] || {};
+  }
+
   getStatusLabel(status: keyof TorrentStatus): string {
     const statusLabels: TorrentStatus = {
       0: 'stopped',

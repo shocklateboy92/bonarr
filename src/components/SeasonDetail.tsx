@@ -9,7 +9,7 @@ import {
   Button,
   Chip,
 } from "@suid/material";
-import { ArrowBack, Download, CheckCircle, Cancel, Folder } from "@suid/icons-material";
+import { ArrowBack, Download, CheckCircle, Cancel, Folder, Search } from "@suid/icons-material";
 import { getTVSeasonDetails, getTVShowDetails } from "../api/tmdb";
 import { checkExistingFiles, ExistingEpisodeFile } from "../lib/applyMatches";
 
@@ -74,6 +74,20 @@ export default function SeasonDetail() {
             Back to Show
           </Button>
         </A>
+        <Show when={show()}>
+          {(showData) => (
+            <A href={`/show/${params.id}/season/${params.seasonNumber}/search?q=${encodeURIComponent(showData().name || '')}`}>
+              <Button 
+                startIcon={<Search />} 
+                variant="contained" 
+                color="secondary"
+                sx={{ minHeight: "48px" }}
+              >
+                Find Torrents
+              </Button>
+            </A>
+          )}
+        </Show>
         <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
           <Button 
             startIcon={<Download />} 
