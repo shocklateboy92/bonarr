@@ -1,4 +1,4 @@
-import { createResource, Show, Suspense, For } from "solid-js";
+import { createResource, Show, Suspense, For, createMemo } from "solid-js";
 import { A, useParams } from "@solidjs/router";
 import {
   Card,
@@ -30,6 +30,17 @@ export default function TorrentsList() {
       return await transmissionClient.getTorrents();
     }
   );
+
+  const filterPath = import.meta.env.VITE_TORRENT_FILTER_PATH;
+  
+  const filteredTorrents = createMemo(() => {
+    const allTorrents = torrents();
+    if (!allTorrents || !filterPath) return allTorrents;
+    
+    return allTorrents.filter((torrent: Torrent) => {
+      return torrent.downloadDir.startsWith(filterPath);
+    });
+  });
 
   const getStatusIcon = (status: number) => {
     switch (status) {
@@ -106,19 +117,20 @@ export default function TorrentsList() {
           </Card>
         </Show>
 
-        <Show when={torrents() && torrents()!.length === 0}>
+        <Show when={filteredTorrents() && filteredTorrents()!.length === 0}>
           <Card>
             <CardContent>
               <Typography sx={{ textAlign: "center", py: 4 }} color="text.secondary">
-                No torrents found. Add some torrents to Transmission to see them here.
+                No torrents found in the configured path ({filterPath || 'not configured'}). 
+                {filterPath ? 'Add torrents to this location or check your VITE_TORRENT_FILTER_PATH setting.' : 'Configure VITE_TORRENT_FILTER_PATH in your .env file.'}
               </Typography>
             </CardContent>
           </Card>
         </Show>
 
-        <Show when={torrents() && torrents()!.length > 0}>
+        <Show when={filteredTorrents() && filteredTorrents()!.length > 0}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <For each={torrents()}>
+            <For each={filteredTorrents()}>
               {(torrent: Torrent) => (
                 <A 
                   href={`/show/${params.id}/season/${params.seasonNumber}/torrents/${torrent.id}`}
