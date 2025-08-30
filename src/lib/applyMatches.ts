@@ -36,6 +36,20 @@ export interface ApplyMatchesResult {
   }[];
 }
 
+export interface ExistingEpisodeFile {
+  episode: number;
+  fileName: string;
+  filePath: string;
+  exists: boolean;
+}
+
+export interface CheckExistingFilesParams {
+  showName: string;
+  showId: number;
+  seasonNumber: number;
+  episodes: number[];
+}
+
 const makeError = (message: string) => {
   throw new Error(message);
 };
@@ -144,3 +158,69 @@ export const applyMatches = query(async (params: ApplyMatchesParams): Promise<Ap
 
   return result;
 }, "apply-matches");
+
+export const checkExistingFiles = query(async (params: CheckExistingFilesParams): Promise<ExistingEpisodeFile[]> => {
+  "use server";
+  
+  const { showName, showId, seasonNumber, episodes } = params;
+
+  // Sanitize show name for filesystem (Jellyfin problematic characters: <, >, :, ", /, \, |, ?, *)
+  const sanitizedShowName = showName.replace(/[<>:"/\\|?*]/g, "-");
+  
+  // Create sanitized show name for file names (remove numbers to avoid Jellyfin confusion)
+  const sanitizedShowNameForFiles = sanitizedShowName.replace(/[0-9]/g, "").replace(/\s+/g, " ").trim();
+
+  // Create show directory structure
+  const showDir = join(libraryRoot, `${sanitizedShowName} [tmdbid-${showId}]`);
+  const seasonDir = join(
+    showDir,
+    `Season ${seasonNumber.toString().padStart(2, "0")}`
+  );
+
+  const results: ExistingEpisodeFile[] = [];
+
+  for (const episodeNum of episodes) {
+    // Check for common video file extensions
+    const extensions = ['.mkv', '.mp4', '.avi', '.m4v', '.mov', '.wmv', '.flv', '.webm', '.ts', '.m2ts'];
+    let foundFile: ExistingEpisodeFile | null = null;
+
+    for (const ext of extensions) {
+      const targetFileName = `${sanitizedShowNameForFiles} - S${seasonNumber
+        .toString()
+        .padStart(2, "0")}E${episodeNum.toString().padStart(2, "0")}${ext}`;
+      const targetFile = join(seasonDir, targetFileName);
+
+      try {
+        await fs.access(targetFile);
+        foundFile = {
+          episode: episodeNum,
+          fileName: targetFileName,
+          filePath: targetFile,
+          exists: true,
+        };
+        break; // Found the file, no need to check other extensions
+      } catch {
+        // File doesn't exist, continue checking other extensions
+      }
+    }
+
+    if (!foundFile) {
+      // No file found for this episode
+      const defaultFileName = `${sanitizedShowNameForFiles} - S${seasonNumber
+        .toString()
+        .padStart(2, "0")}E${episodeNum.toString().padStart(2, "0")}.mkv`;
+      const defaultFilePath = join(seasonDir, defaultFileName);
+      
+      foundFile = {
+        episode: episodeNum,
+        fileName: defaultFileName,
+        filePath: defaultFilePath,
+        exists: false,
+      };
+    }
+
+    results.push(foundFile);
+  }
+
+  return results.sort((a, b) => a.episode - b.episode);
+}, "check-existing-files");

@@ -9,17 +9,52 @@ import {
   Button,
   Chip,
 } from "@suid/material";
-import { ArrowBack, Download } from "@suid/icons-material";
-import { getTVSeasonDetails } from "../api/tmdb";
+import { ArrowBack, Download, CheckCircle, Cancel, Folder } from "@suid/icons-material";
+import { getTVSeasonDetails, getTVShowDetails } from "../api/tmdb";
+import { checkExistingFiles, ExistingEpisodeFile } from "../lib/applyMatches";
 
 export default function SeasonDetail() {
   const params = useParams();
+
+  // Helper function to get existing file for an episode
+  const getExistingFileForEpisode = (episodeNumber: number): ExistingEpisodeFile | null => {
+    const files = existingFiles();
+    if (!files) return null;
+    return files.find(file => file.episode === episodeNumber) || null;
+  };
   
   const [season] = createResource(
     () => ({ seriesId: params.id, seasonNumber: params.seasonNumber }),
     async ({ seriesId, seasonNumber }) => {
       if (!seriesId || !seasonNumber) return null;
       return await getTVSeasonDetails(parseInt(seriesId), parseInt(seasonNumber));
+    }
+  );
+
+  const [show] = createResource(
+    () => params.id,
+    async (seriesId) => {
+      if (!seriesId) return null;
+      return await getTVShowDetails(parseInt(seriesId));
+    }
+  );
+
+  const [existingFiles] = createResource(
+    () => {
+      const seasonData = season();
+      const showData = show();
+      if (!seasonData?.episodes || !showData?.name || !params.id || !params.seasonNumber) return null;
+      
+      return {
+        showName: showData.name,
+        showId: parseInt(params.id),
+        seasonNumber: parseInt(params.seasonNumber),
+        episodes: seasonData.episodes.map((ep: any) => ep.episode_number)
+      };
+    },
+    async (params) => {
+      if (!params) return null;
+      return await checkExistingFiles(params);
     }
   );
 
@@ -59,9 +94,9 @@ export default function SeasonDetail() {
           </Box>
         }
       >
-        <Show when={season.error}>
+        <Show when={season.error || show.error || existingFiles.error}>
           <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
-            Error: {season.error?.message}
+            Error: {season.error?.message || show.error?.message || existingFiles.error?.message}
           </Typography>
         </Show>
 
@@ -128,6 +163,24 @@ export default function SeasonDetail() {
                           label={`Rating: ${seasonData().vote_average?.toFixed(1)}/10`}
                           color={seasonData().vote_average! > 7 ? "success" : seasonData().vote_average! > 5 ? "primary" : "default"}
                         />
+                      </Show>
+                      
+                      {/* Library Status Summary */}
+                      <Show when={existingFiles()}>
+                        {(() => {
+                          const files = existingFiles()!;
+                          const availableCount = files.filter(f => f.exists).length;
+                          const totalCount = files.length;
+                          const hasAll = availableCount === totalCount;
+                          
+                          return (
+                            <Chip 
+                              label={`${availableCount}/${totalCount} in Library`}
+                              color={hasAll ? "success" : availableCount > 0 ? "warning" : "error"}
+                              icon={hasAll ? <CheckCircle /> : <Folder />}
+                            />
+                          );
+                        })()}
                       </Show>
                     </Box>
 
@@ -203,9 +256,60 @@ export default function SeasonDetail() {
                                     </Typography>
                                   </Show>
                                   <Show when={episode.overview}>
-                                    <Typography variant="body2">
+                                    <Typography variant="body2" sx={{ mb: 2 }}>
                                       {episode.overview}
                                     </Typography>
+                                  </Show>
+                                  
+                                  {/* File Status */}
+                                  <Show when={existingFiles()}>
+                                    <Box sx={{ 
+                                      mt: 2, 
+                                      pt: 2, 
+                                      borderTop: "1px solid", 
+                                      borderColor: "divider",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1,
+                                      flexWrap: "wrap"
+                                    }}>
+                                      {(() => {
+                                        const existingFile = getExistingFileForEpisode(episode.episode_number);
+                                        return (
+                                          <Show when={existingFile} fallback={
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                              <Cancel color="error" fontSize="small" />
+                                              <Typography variant="caption" color="text.secondary">
+                                                Checking file status...
+                                              </Typography>
+                                            </Box>
+                                          }>
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
+                                              {existingFile!.exists ? (
+                                                <CheckCircle color="success" fontSize="small" />
+                                              ) : (
+                                                <Cancel color="error" fontSize="small" />
+                                              )}
+                                              <Typography 
+                                                variant="caption" 
+                                                color={existingFile!.exists ? "success.main" : "error.main"}
+                                                sx={{ fontWeight: "medium" }}
+                                              >
+                                                {existingFile!.exists ? "Available in Library" : "Not in Library"}
+                                              </Typography>
+                                              <Show when={existingFile!.exists}>
+                                                <Folder fontSize="small" color="action" />
+                                              </Show>
+                                            </Box>
+                                            <Show when={existingFile!.exists}>
+                                              <Typography variant="caption" color="text.secondary">
+                                                {existingFile!.fileName}
+                                              </Typography>
+                                            </Show>
+                                          </Show>
+                                        );
+                                      })()}
+                                    </Box>
                                   </Show>
                                 </Box>
                               </Box>
