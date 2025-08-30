@@ -9,6 +9,14 @@ import {
   Button,
   Chip,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
 } from "@suid/material";
 import {
   ArrowBack,
@@ -16,6 +24,8 @@ import {
   Warning,
   Cancel,
   SwapHoriz,
+  Error as ErrorIcon,
+  Link as LinkIcon,
 } from "@suid/icons-material";
 import { getTVSeasonDetails } from "../api/tmdb";
 import {
@@ -24,6 +34,7 @@ import {
   TorrentFile,
 } from "../api/transmission";
 import FileSelectionModal from "./FileSelectionModal";
+import { applyMatches, ApplyMatchesResult } from "../lib/applyMatches";
 
 interface EpisodeMatch {
   episode: any;
@@ -57,6 +68,11 @@ export default function EpisodeTorrentMatcher() {
   const [matches, setMatches] = createSignal<EpisodeMatch[]>([]);
   const [modalOpen, setModalOpen] = createSignal(false);
   const [selectedEpisode, setSelectedEpisode] = createSignal<any>(null);
+  
+  // Apply matches state
+  const [isApplying, setIsApplying] = createSignal(false);
+  const [applyResult, setApplyResult] = createSignal<ApplyMatchesResult | null>(null);
+  const [resultDialogOpen, setResultDialogOpen] = createSignal(false);
 
   // Auto-matching logic
   const matchEpisodesWithFiles = (episodes: any[], files: TorrentFile[]) => {
@@ -228,6 +244,52 @@ export default function EpisodeTorrentMatcher() {
     } else {
       // No more episodes, close modal
       handleModalClose();
+    }
+  };
+
+  const handleApplyMatches = async () => {
+    const seasonData = season();
+    const torrentData = torrent();
+    
+    if (!seasonData || !torrentData || isApplying()) return;
+
+    setIsApplying(true);
+    
+    try {
+      const matchesToApply = matches().map(match => ({
+        episode: {
+          episode_number: match.episode.episode_number,
+          season_number: parseInt(params.seasonNumber || "1"),
+          name: match.episode.name,
+        },
+        file: match.file ? {
+          name: match.file.name,
+          length: match.file.length,
+        } : null,
+        confidence: match.confidence
+      }));
+
+      const result = await applyMatches({
+        matches: matchesToApply,
+        showName: seasonData.name || `Season ${params.seasonNumber}`,
+        showId: parseInt(params.id || "0"),
+        seasonNumber: parseInt(params.seasonNumber || "1"),
+        torrentPath: torrentData.downloadDir,
+      });
+
+      setApplyResult(result);
+      setResultDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to apply matches:", error);
+      setApplyResult({
+        success: false,
+        processedCount: 0,
+        errors: [`Failed to apply matches: ${error}`],
+        details: []
+      });
+      setResultDialogOpen(true);
+    } finally {
+      setIsApplying(false);
     }
   };
 
@@ -513,10 +575,18 @@ export default function EpisodeTorrentMatcher() {
                   variant="contained"
                   color="primary"
                   size="large"
-                  disabled={getMatchedCount() === 0}
+                  disabled={getMatchedCount() === 0 || isApplying()}
+                  onClick={handleApplyMatches}
                   sx={{ minHeight: "48px" }}
                 >
-                  Apply Matches ({getMatchedCount()}/{getTotalCount()})
+                  {isApplying() ? (
+                    <>
+                      <CircularProgress size={20} sx={{ mr: 1 }} />
+                      Applying Matches...
+                    </>
+                  ) : (
+                    `Apply Matches (${getMatchedCount()}/${getTotalCount()})`
+                  )}
                 </Button>
               </Box>
             </Box>
@@ -536,6 +606,91 @@ export default function EpisodeTorrentMatcher() {
           onFileSelectAndNext={handleFileSelectAndNext}
           hasNextEpisode={getNextEpisode(selectedEpisode()) !== null}
         />
+      </Show>
+
+      {/* Results Dialog */}
+      <Show when={resultDialogOpen() && applyResult()}>
+        <Dialog
+          open={resultDialogOpen()}
+          onClose={() => setResultDialogOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            {applyResult()?.success ? "Matches Applied Successfully!" : "Error Applying Matches"}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {applyResult()?.success
+                  ? `Successfully created ${applyResult()?.processedCount} hard links.`
+                  : "Some errors occurred while applying matches."
+                }
+              </Typography>
+              
+              <Show when={applyResult()?.errors && applyResult()!.errors.length > 0}>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  <Typography variant="body2" component="div">
+                    <strong>Errors:</strong>
+                    <ul style={{ margin: "8px 0 0 0", "padding-left": "20px" }}>
+                      <For each={applyResult()?.errors}>
+                        {(error) => <li>{error}</li>}
+                      </For>
+                    </ul>
+                  </Typography>
+                </Alert>
+              </Show>
+            </Box>
+
+            <Show when={applyResult()?.details && applyResult()!.details.length > 0}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Details:
+              </Typography>
+              <List dense>
+                <For each={applyResult()?.details}>
+                  {(detail) => (
+                    <ListItem>
+                      <ListItemIcon>
+                        {detail.status === "success" ? (
+                          <CheckCircle color="success" />
+                        ) : (
+                          <ErrorIcon color="error" />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Episode ${detail.episode}`}
+                        secondary={
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              {detail.status === "success" ? (
+                                <>
+                                  <LinkIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                                  Created: {detail.targetFile}
+                                </>
+                              ) : (
+                                detail.error
+                              )}
+                            </Typography>
+                            {detail.sourceFile && (
+                              <Typography variant="caption" color="text.secondary">
+                                Source: {detail.sourceFile}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  )}
+                </For>
+              </List>
+            </Show>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setResultDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Show>
     </Box>
   );

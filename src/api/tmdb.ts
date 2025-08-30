@@ -3,6 +3,8 @@ import type { paths } from '../types/tmdb';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
+console.log("TMDB API Key loaded:", TMDB_API_KEY ? "✓ Present" : "✗ Missing");
+
 if (!TMDB_API_KEY) {
   throw new Error('TMDB API key not found. Please set VITE_TMDB_API_KEY environment variable.');
 }
