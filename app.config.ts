@@ -7,5 +7,15 @@ export default defineConfig({
     build: {
       target: "esnext",
     },
+    server: {
+      port: 3000,
+      strictPort: true,
+      hmr: {
+        host: "localhost",
+        protocol: "ws",
+        port: 24678,
+        clientPort: 24678
+      }
+    }
   },
 });
