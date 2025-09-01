@@ -96,18 +96,32 @@ export default function SeasonDetail() {
         </A>
         <Show when={show()}>
           {(showData) => (
-            <A
-              href={`/show/${params.id}/season/${params.seasonNumber}/search?q=${encodeURIComponent(showData().name || "")}`}
-            >
-              <Button
-                startIcon={<Search />}
-                variant="contained"
-                color="secondary"
-                sx={{ minHeight: "48px" }}
+            <>
+              <A
+                href={`/show/${params.id}/season/${params.seasonNumber}/search?q=${encodeURIComponent(showData().name || "")}`}
               >
-                Find Torrents
-              </Button>
-            </A>
+                <Button
+                  startIcon={<Search />}
+                  variant="contained"
+                  color="secondary"
+                  sx={{ minHeight: "48px" }}
+                >
+                  Find Torrents (Prowlarr)
+                </Button>
+              </A>
+              <A
+                href={`/show/${params.id}/season/${params.seasonNumber}/animebytes?q=${encodeURIComponent(showData().name || "")}`}
+              >
+                <Button
+                  startIcon={<Search />}
+                  variant="contained"
+                  color="info"
+                  sx={{ minHeight: "48px" }}
+                >
+                  Search AnimeBytes
+                </Button>
+              </A>
+            </>
           )}
         </Show>
         <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
