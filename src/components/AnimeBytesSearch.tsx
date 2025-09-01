@@ -450,7 +450,11 @@ export default function AnimeBytesSearch() {
                       </Box>
 
                       {/* Tags */}
-                      <Show when={group.Tags?.length > 0}>
+                      <Show
+                        when={
+                          group.Tags?.filter((tag) => tag.trim()).length > 0
+                        }
+                      >
                         <Box
                           sx={{
                             mt: 2,
@@ -459,7 +463,7 @@ export default function AnimeBytesSearch() {
                             flexWrap: "wrap",
                           }}
                         >
-                          <For each={group.Tags.slice(0, 6)}>
+                          <For each={group.Tags.filter((tag) => tag.trim())}>
                             {(tag) => (
                               <Chip
                                 label={tag}
@@ -469,14 +473,6 @@ export default function AnimeBytesSearch() {
                               />
                             )}
                           </For>
-                          <Show when={group.Tags.length > 6}>
-                            <Chip
-                              label={`+${group.Tags.length - 6} more`}
-                              size="small"
-                              variant="outlined"
-                              sx={{ fontSize: "0.7rem" }}
-                            />
-                          </Show>
                         </Box>
                       </Show>
                     </Box>
