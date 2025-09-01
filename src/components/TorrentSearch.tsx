@@ -11,8 +11,8 @@ import {
   Chip,
   IconButton,
   InputAdornment,
-  Alert,
 } from "@suid/material";
+import toast, { Toaster } from "solid-toast";
 import {
   ArrowBack,
   Search,
@@ -38,12 +38,6 @@ export default function TorrentSearch() {
       : searchParams.q || "",
   );
 
-  // Toast notifications
-  const [notificationOpen, setNotificationOpen] = createSignal(false);
-  const [notificationMessage, setNotificationMessage] = createSignal("");
-  const [notificationSeverity, setNotificationSeverity] = createSignal<
-    "error" | "success" | "info" | "warning"
-  >("info");
 
   const [searchResults, { refetch }] = createResource(
     () => query()?.trim(),
@@ -69,16 +63,6 @@ export default function TorrentSearch() {
     }
   };
 
-  const showNotification = (
-    message: string,
-    severity: "error" | "success" | "info" | "warning" = "info",
-  ) => {
-    setNotificationMessage(message);
-    setNotificationSeverity(severity);
-    setNotificationOpen(true);
-    // Auto-hide after 6 seconds
-    setTimeout(() => setNotificationOpen(false), 6000);
-  };
 
   const handleDownload = async (magnetUrl: string, torrentName: string) => {
     try {
@@ -90,28 +74,21 @@ export default function TorrentSearch() {
 
       if (result.id) {
         // Successfully added, navigate to the torrent files page
-        showNotification(
-          `Successfully added torrent: ${torrentName}`,
-          "success",
-        );
+        toast.success(`Successfully added torrent: ${torrentName}`);
         navigate(
           `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`,
         );
       } else {
         // Might be a duplicate or other issue
-        showNotification(
-          `Torrent "${torrentName}" may already exist or could not be added`,
-          "warning",
-        );
+        toast(`Torrent "${torrentName}" may already exist or could not be added`, {
+          icon: "⚠️",
+        });
       }
     } catch (error) {
       console.error("Failed to add torrent:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      showNotification(
-        `Failed to add torrent "${torrentName}": ${errorMessage}`,
-        "error",
-      );
+      toast.error(`Failed to add torrent "${torrentName}": ${errorMessage}`);
     }
   };
 
@@ -508,28 +485,7 @@ export default function TorrentSearch() {
         </Show>
       </Suspense>
 
-      {/* Toast Notifications */}
-      <Show when={notificationOpen()}>
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            minWidth: "300px",
-            maxWidth: "600px",
-          }}
-        >
-          <Alert
-            onClose={() => setNotificationOpen(false)}
-            severity={notificationSeverity()}
-            sx={{ width: "100%" }}
-          >
-            {notificationMessage()}
-          </Alert>
-        </Box>
-      </Show>
+      <Toaster />
     </Box>
   );
 }
