@@ -1,6 +1,5 @@
 import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
 import {
-  Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -31,6 +30,7 @@ import {
 } from "@suid/icons-material";
 import { TorrentFile } from "../api/transmission";
 import { transmissionClient } from "../api/transmission";
+import FullscreenMobileDialog from "./shared/FullscreenMobileDialog";
 
 interface FileSelectionModalProps {
   open: boolean;
@@ -132,21 +132,11 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
   };
 
   return (
-    <Dialog
+    <FullscreenMobileDialog
       open={props.open}
       onClose={handleCancel}
       maxWidth="md"
       fullWidth
-      sx={{
-        "& .MuiDialog-paper": {
-          maxHeight: { xs: "100vh", sm: "90vh" },
-          m: { xs: 0, sm: 2 },
-          maxWidth: { xs: "100vw", sm: "600px" },
-          width: { xs: "100vw", sm: "auto" },
-          height: { xs: "100vh", sm: "auto" },
-          borderRadius: { xs: 0, sm: 1 },
-        },
-      }}
     >
       <DialogTitle>
         <Box
@@ -391,6 +381,6 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
           </Button>
         </Show>
       </DialogActions>
-    </Dialog>
+    </FullscreenMobileDialog>
   );
 }
