@@ -9,10 +9,7 @@ import {
   Button,
   Chip,
   Alert,
-  Dialog,
   DialogTitle,
-  DialogContent,
-  DialogActions,
   List,
   ListItem,
   ListItemText,
@@ -27,6 +24,10 @@ import {
   Error as ErrorIcon,
   Link as LinkIcon,
 } from "@suid/icons-material";
+import FullscreenMobileDialog, {
+  FullscreenMobileDialogContent,
+  FullscreenMobileDialogActions,
+} from "./shared/FullscreenMobileDialog";
 import { getTVSeasonDetails, getTVShowDetails } from "../api/tmdb";
 import {
   transmissionClient,
@@ -630,28 +631,18 @@ export default function EpisodeTorrentMatcher() {
 
       {/* Results Dialog */}
       <Show when={resultDialogOpen() && applyResult()}>
-        <Dialog
+        <FullscreenMobileDialog
           open={resultDialogOpen()}
           onClose={() => setResultDialogOpen(false)}
           maxWidth="md"
           fullWidth
-          sx={{
-            "& .MuiDialog-paper": {
-              maxHeight: { xs: "100vh", sm: "90vh" },
-              m: { xs: 0, sm: 2 },
-              maxWidth: { xs: "100vw", sm: "600px" },
-              width: { xs: "100vw", sm: "auto" },
-              height: { xs: "100vh", sm: "auto" },
-              borderRadius: { xs: 0, sm: 1 },
-            },
-          }}
         >
           <DialogTitle>
             {applyResult()?.success
               ? "Matches Applied Successfully!"
               : "Error Applying Matches"}
           </DialogTitle>
-          <DialogContent>
+          <FullscreenMobileDialogContent>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 {applyResult()?.success
@@ -722,11 +713,11 @@ export default function EpisodeTorrentMatcher() {
                 </For>
               </List>
             </Show>
-          </DialogContent>
-          <DialogActions>
+          </FullscreenMobileDialogContent>
+          <FullscreenMobileDialogActions>
             <Button onClick={() => setResultDialogOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
+          </FullscreenMobileDialogActions>
+        </FullscreenMobileDialog>
       </Show>
     </Box>
   );
