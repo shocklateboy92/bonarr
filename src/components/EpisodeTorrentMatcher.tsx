@@ -715,7 +715,10 @@ export default function EpisodeTorrentMatcher() {
             </Show>
           </FullscreenMobileDialogContent>
           <FullscreenMobileDialogActions>
-            <Button onClick={() => setResultDialogOpen(false)}>Close</Button>
+            <Button variant="outlined" onClick={() => setResultDialogOpen(false)}>Close</Button>
+            <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+              <Button variant="contained">Back to Season</Button>
+            </A>
           </FullscreenMobileDialogActions>
         </FullscreenMobileDialog>
       </Show>

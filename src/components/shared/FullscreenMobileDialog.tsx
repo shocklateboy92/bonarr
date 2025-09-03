@@ -63,6 +63,8 @@ export function FullscreenMobileDialogActions(props: FullscreenMobileDialogActio
         px: { xs: 1, sm: 3 },
         pb: { xs: 1, sm: 3 },
         pt: { xs: 1, sm: 2 },
+        gap: 1,
+        justifyContent: { xs: "center", sm: "flex-end" },
         ...sx,
       }}
     >

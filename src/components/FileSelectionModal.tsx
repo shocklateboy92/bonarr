@@ -356,7 +356,6 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         >
           Cancel
         </Button>
-        <Box sx={{ flex: 1 }} />
         <Button
           onClick={handleConfirm}
           variant="outlined"
@@ -370,7 +369,6 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
             variant="contained"
             disabled={!selectedFile()}
             endIcon={<ArrowForward />}
-            sx={{ ml: 1 }}
           >
             Select & Next Episode
           </Button>
