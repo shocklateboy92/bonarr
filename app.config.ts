@@ -2,6 +2,7 @@ import { defineConfig } from "@solidjs/start/config";
 import suidPlugin from "@suid/vite-plugin";
 
 export default defineConfig({
+  ssr: false,
   vite: {
     plugins: [suidPlugin()],
     build: {
