@@ -1,8 +1,6 @@
 import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
 import {
   DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
   TextField,
   Typography,
@@ -30,7 +28,10 @@ import {
 } from "@suid/icons-material";
 import { TorrentFile } from "../api/transmission";
 import { transmissionClient } from "../api/transmission";
-import FullscreenMobileDialog from "./shared/FullscreenMobileDialog";
+import FullscreenMobileDialog, {
+  FullscreenMobileDialogContent,
+  FullscreenMobileDialogActions,
+} from "./shared/FullscreenMobileDialog";
 
 interface FileSelectionModalProps {
   open: boolean;
@@ -161,7 +162,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ px: { xs: 1, sm: 3 }, py: { xs: 1, sm: 2 } }}>
+      <FullscreenMobileDialogContent>
         {/* Search Field */}
         <TextField
           fullWidth
@@ -345,15 +346,9 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
             </RadioGroup>
           </Show>
         </Box>
-      </DialogContent>
+      </FullscreenMobileDialogContent>
 
-      <DialogActions
-        sx={{
-          px: { xs: 1, sm: 3 },
-          pb: { xs: 1, sm: 3 },
-          pt: { xs: 1, sm: 2 },
-        }}
-      >
+      <FullscreenMobileDialogActions>
         <Button
           onClick={handleCancel}
           color="inherit"
@@ -380,7 +375,7 @@ export default function FileSelectionModal(props: FileSelectionModalProps) {
             Select & Next Episode
           </Button>
         </Show>
-      </DialogActions>
+      </FullscreenMobileDialogActions>
     </FullscreenMobileDialog>
   );
 }
