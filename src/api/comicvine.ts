@@ -132,6 +132,7 @@ interface ComicVineRequestParams {
   offset?: number;
   sort?: string;
   filter?: string;
+  resources?: string;
 }
 
 class ComicVineClient {
@@ -202,7 +203,7 @@ class ComicVineClient {
     };
 
     if (resources && resources.length > 0) {
-      params.filter = `resources:${resources.join(",")}`;
+      params.resources = resources.join(",");
     }
 
     return this.makeRequest<ComicVineSearchResult>(
