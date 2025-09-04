@@ -231,13 +231,15 @@ class ComicVineClient {
     id: number,
     fieldList?: string[]
   ): Promise<ComicVineApiResponse<ComicVineVolume>> {
-    const params: ComicVineRequestParams = {};
+    const params: ComicVineRequestParams = {
+      filter: `id:${id}`,
+    };
     
     if (fieldList && fieldList.length > 0) {
       params.field_list = fieldList.join(",");
     }
 
-    return this.makeRequest<ComicVineVolume>(`/volume/4000-${id}/`, params);
+    return this.makeRequest<ComicVineVolume>(`/volumes/`, params);
   }
 
   async getVolumes(
