@@ -117,7 +117,7 @@ export default function VolumeDetail() {
                       </Show>
 
                       {/* Action Buttons */}
-                      <Box sx={{ mt: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+                      <Box sx={{ mt: 3, display: "flex", gap: 2, flexWrap: "wrap", justifyContent: { xs: "center", sm: "flex-start" } }}>
                         <A href={`/volume/${params.id}/animebytes?q=${encodeURIComponent(vol().name || "")}`}>
                           <Button
                             startIcon={<Search />}
