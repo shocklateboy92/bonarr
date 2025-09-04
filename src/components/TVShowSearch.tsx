@@ -7,6 +7,7 @@ import {
   Match,
   Suspense,
 } from "solid-js";
+import { Title } from "@solidjs/meta";
 import {
   TextField,
   Button,
@@ -31,7 +32,9 @@ export default function TVShowSearch() {
   );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 1, md: 2 } }}>
+    <>
+      <Title>Search TV Shows | Bonarr</Title>
+      <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box
         sx={{
           display: "flex",
@@ -180,6 +183,7 @@ export default function TVShowSearch() {
           </Match>
         </Switch>
       </Suspense>
-    </Box>
+      </Box>
+    </>
   );
 }

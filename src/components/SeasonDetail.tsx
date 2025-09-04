@@ -1,5 +1,6 @@
 import { createResource, Show, Suspense, For } from "solid-js";
 import { useParams, A } from "@solidjs/router";
+import { Title } from "@solidjs/meta";
 import {
   Card,
   CardContent,
@@ -76,7 +77,9 @@ export default function SeasonDetail() {
   );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
+    <>
+      <Title>{show()?.name && season()?.name ? `${show()?.name} - ${season()?.name} | Bonarr` : "Season Details | Bonarr"}</Title>
+      <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box
         sx={{
           mb: 3,
@@ -468,6 +471,7 @@ export default function SeasonDetail() {
           )}
         </Show>
       </Suspense>
-    </Box>
+      </Box>
+    </>
   );
 }

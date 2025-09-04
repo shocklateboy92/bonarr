@@ -1,5 +1,6 @@
 import { createResource, Show, Suspense, For, createSignal } from "solid-js";
 import { useParams, A } from "@solidjs/router";
+import { Title } from "@solidjs/meta";
 import {
   Card,
   CardContent,
@@ -312,7 +313,9 @@ export default function EpisodeTorrentMatcher() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
+    <>
+      <Title>Match Episodes to Files | Bonarr</Title>
+      <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box
         sx={{
           mb: 3,
@@ -722,6 +725,7 @@ export default function EpisodeTorrentMatcher() {
           </FullscreenMobileDialogActions>
         </FullscreenMobileDialog>
       </Show>
-    </Box>
+      </Box>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { createResource, Show, Suspense, For, createMemo } from "solid-js";
 import { A, useParams } from "@solidjs/router";
+import { Title } from "@solidjs/meta";
 import {
   Card,
   CardContent,
@@ -87,7 +88,9 @@ export default function TorrentsList() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
+    <>
+      <Title>Select Torrent | Bonarr</Title>
+      <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box sx={{ mb: 3 }}>
         <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
           <Button startIcon={<ArrowBack />} variant="outlined">
@@ -356,6 +359,7 @@ export default function TorrentsList() {
           </Box>
         </Show>
       </Suspense>
-    </Box>
+      </Box>
+    </>
   );
 }

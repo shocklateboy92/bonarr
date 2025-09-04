@@ -9,7 +9,6 @@ export default function App() {
     <Router
       root={(props) => (
         <MetaProvider>
-          <Title>Bonarr - TV Show Manager</Title>
           <Suspense>{props.children}</Suspense>
         </MetaProvider>
       )}
