@@ -31,7 +31,12 @@ import {
 import { searchAnimeBytes, type AnimeBytesGroup } from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
 
-export default function AnimeBytesSearch() {
+interface AnimeBytesSearchProps {
+  mangaMode?: boolean;
+}
+
+export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
+  const { mangaMode = false } = props;
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -44,7 +49,12 @@ export default function AnimeBytesSearch() {
   const [searchResults, { refetch }] = createResource(
     () => query()?.trim(),
     (searchQuery) =>
-      searchAnimeBytes({ query: searchQuery, type: "anime", limit: 25 })
+      searchAnimeBytes({ 
+        query: searchQuery, 
+        type: "anime", 
+        limit: 25, 
+        mangaOnly: mangaMode 
+      })
   );
 
   const handleSearch = () => {
@@ -80,9 +90,14 @@ export default function AnimeBytesSearch() {
 
       if (result.id) {
         toast.success(`Successfully added torrent: ${torrentName}`);
-        navigate(
-          `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`
-        );
+        if (mangaMode) {
+          // For manga, stay on the volume page after download
+          navigate(`/volume/${params.id}`);
+        } else {
+          navigate(
+            `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`
+          );
+        }
       } else {
         toast(
           `Torrent "${torrentName}" may already exist or could not be added`,
@@ -125,9 +140,9 @@ export default function AnimeBytesSearch() {
       <Title>AnimeBytes Search | Bonarr</Title>
       <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
       <Box sx={{ mb: 3 }}>
-        <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+        <A href={mangaMode ? `/volume/${params.id}` : `/show/${params.id}/season/${params.seasonNumber}`}>
           <Button startIcon={<ArrowBack />} variant="outlined">
-            Back to Season
+            {mangaMode ? "Back to Volume" : "Back to Season"}
           </Button>
         </A>
       </Box>
@@ -140,18 +155,21 @@ export default function AnimeBytesSearch() {
           fontSize: { xs: "1.5rem", md: "2.125rem" },
         }}
       >
-        AnimeBytes Search - Season {params.seasonNumber}
+        {mangaMode ? "AnimeBytes Manga Search" : `AnimeBytes Search - Season ${params.seasonNumber}`}
       </Typography>
 
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Search AnimeBytes directly for high-quality anime torrents
+        {mangaMode 
+          ? "Search AnimeBytes directly for high-quality manga torrents"
+          : "Search AnimeBytes directly for high-quality anime torrents"
+        }
       </Typography>
 
       {/* Search Input */}
       <Box sx={{ mb: 3 }}>
         <TextField
           fullWidth
-          label="Search AnimeBytes"
+          label={mangaMode ? "Search AnimeBytes for Manga" : "Search AnimeBytes"}
           variant="outlined"
           value={query()}
           onChange={(e) => setQuery(e.target.value)}
@@ -179,7 +197,8 @@ export default function AnimeBytesSearch() {
         <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Chip label="AnimeBytes" size="small" color="primary" />
           <Chip label="Direct Search" size="small" variant="outlined" />
-          <Chip label="Groups & Series" size="small" variant="outlined" />
+          <Chip label={mangaMode ? "Manga Only" : "Groups & Series"} size="small" variant="outlined" />
+          {mangaMode && <Chip label="Printed Media" size="small" color="secondary" />}
         </Box>
       </Box>
 
@@ -225,8 +244,10 @@ export default function AnimeBytesSearch() {
                 sx={{ textAlign: "center", py: 4 }}
                 color="text.secondary"
               >
-                No results found on AnimeBytes for "{query()}". Try different
-                search terms.
+{mangaMode 
+                  ? `No manga found on AnimeBytes for "${query()}". Try different search terms.`
+                  : `No results found on AnimeBytes for "${query()}". Try different search terms.`
+                }
               </Typography>
             </CardContent>
           </Card>
@@ -644,7 +665,10 @@ export default function AnimeBytesSearch() {
                 sx={{ textAlign: "center", py: 4 }}
                 color="text.secondary"
               >
-                Enter a search term to find anime series on AnimeBytes
+{mangaMode 
+                  ? "Enter a search term to find manga on AnimeBytes"
+                  : "Enter a search term to find anime series on AnimeBytes"
+                }
               </Typography>
             </CardContent>
           </Card>

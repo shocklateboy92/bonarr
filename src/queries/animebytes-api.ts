@@ -72,6 +72,7 @@ export interface SearchAnimeBytesParams {
   query: string;
   type?: "anime" | "music";
   limit?: number;
+  mangaOnly?: boolean;
 }
 
 const makeError = (message: string) => {
@@ -90,7 +91,7 @@ export const searchAnimeBytes = query(
   async (params: SearchAnimeBytesParams): Promise<AnimeBytesGroup[]> => {
     "use server";
 
-    const { query: searchQuery, type = "anime", limit = 25 } = params;
+    const { query: searchQuery, type = "anime", limit = 25, mangaOnly = false } = params;
 
     if (!searchQuery?.trim()) {
       return [];
@@ -104,6 +105,9 @@ export const searchAnimeBytes = query(
       limit: limit.toString(),
     });
 
+    if (mangaOnly) {
+      searchParams.append("printedtype[manga]", "1");
+    }
 
     const url = `https://animebytes.tv/scrape.php?${searchParams.toString()}`;
 

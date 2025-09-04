@@ -10,7 +10,7 @@ import {
   Button,
   Chip,
 } from "@suid/material";
-import { ArrowBack } from "@suid/icons-material";
+import { ArrowBack, Search } from "@suid/icons-material";
 import { getComicVineVolume, getVolumeIssues } from "../queries/comicvine-api";
 
 export default function VolumeDetail() {
@@ -115,6 +115,20 @@ export default function VolumeDetail() {
                           innerHTML={vol().description}
                         />
                       </Show>
+
+                      {/* Action Buttons */}
+                      <Box sx={{ mt: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+                        <A href={`/volume/${params.id}/animebytes?q=${encodeURIComponent(vol().name || "")}`}>
+                          <Button
+                            startIcon={<Search />}
+                            variant="contained"
+                            color="info"
+                            sx={{ minHeight: "48px" }}
+                          >
+                            Search AnimeBytes
+                          </Button>
+                        </A>
+                      </Box>
                     </Box>
                   </Box>
                 </CardContent>
