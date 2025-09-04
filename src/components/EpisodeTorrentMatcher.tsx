@@ -35,7 +35,7 @@ import {
   TorrentFile,
 } from "../api/transmission";
 import FileSelectionModal from "./FileSelectionModal";
-import { applyMatches, ApplyMatchesResult } from "../lib/applyMatches";
+import { applyMatches, ApplyMatchesResult } from "../queries/applyMatches";
 
 interface EpisodeMatch {
   episode: any;

@@ -27,7 +27,7 @@ import {
   CalendarToday,
   ImageNotSupported,
 } from "@suid/icons-material";
-import { searchAnimeBytes, type AnimeBytesGroup } from "../lib/animebytes-api";
+import { searchAnimeBytes, type AnimeBytesGroup } from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
 
 export default function AnimeBytesSearch() {

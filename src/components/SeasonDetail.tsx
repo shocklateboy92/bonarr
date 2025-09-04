@@ -18,7 +18,7 @@ import {
   Search,
 } from "@suid/icons-material";
 import { getTVSeasonDetails, getTVShowDetails } from "../api/tmdb";
-import { checkExistingFiles, ExistingEpisodeFile } from "../lib/applyMatches";
+import { checkExistingFiles, ExistingEpisodeFile } from "../queries/applyMatches";
 
 export default function SeasonDetail() {
   const params = useParams();
