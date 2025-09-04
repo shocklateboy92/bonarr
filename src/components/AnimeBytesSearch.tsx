@@ -550,8 +550,18 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
                                       variant="body1"
                                       sx={{ fontWeight: "medium", mb: 1 }}
                                     >
-                                      {torrent.Property}
+                                      {torrent.EditionData?.EditionTitle || torrent.Property}
                                     </Typography>
+
+                                    <Show when={torrent.EditionData?.EditionTitle && torrent.Property !== torrent.EditionData?.EditionTitle}>
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ mb: 1, fontStyle: "italic" }}
+                                      >
+                                        {torrent.Property}
+                                      </Typography>
+                                    </Show>
 
                                     <Box
                                       sx={{
