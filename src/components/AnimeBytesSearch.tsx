@@ -91,8 +91,8 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
       if (result.id) {
         toast.success(`Successfully added torrent: ${torrentName}`);
         if (mangaMode) {
-          // For manga, stay on the volume page after download
-          navigate(`/volume/${params.id}`);
+          // For manga, navigate to volume torrent details
+          navigate(`/volume/${params.id}/torrents/${result.id}`);
         } else {
           navigate(
             `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`

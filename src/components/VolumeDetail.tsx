@@ -128,6 +128,11 @@ export default function VolumeDetail() {
                             Search AnimeBytes
                           </Button>
                         </A>
+                        <A href={`/volume/${params.id}/torrents`}>
+                          <Button variant="outlined" color="secondary" sx={{ minHeight: "48px" }}>
+                            View Downloaded Torrents
+                          </Button>
+                        </A>
                       </Box>
                     </Box>
                   </Box>
