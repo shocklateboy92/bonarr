@@ -1,2 +1,3 @@
 - Never use the null suppression operator `!`
 - Always check the entire project after writing code with `tsc --noEmit`
+- project architecture is described in @ARCHITECTURE.md
