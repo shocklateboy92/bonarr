@@ -2,7 +2,9 @@ const COMIC_VINE_API_KEY = import.meta.env.VITE_COMIC_VINE_API_KEY;
 const COMIC_VINE_BASE_URL = "https://comicvine.gamespot.com/api";
 
 if (!COMIC_VINE_API_KEY) {
-  throw new Error("Comic Vine API key not found. Set VITE_COMIC_VINE_API_KEY environment variable.");
+  throw new Error(
+    "Comic Vine API key not found. Set VITE_COMIC_VINE_API_KEY environment variable.",
+  );
 }
 
 export interface ComicVineImage {
@@ -110,7 +112,22 @@ export interface ComicVineSearchResult {
   id: number;
   image: ComicVineImage;
   name: string;
-  resource_type: "volume" | "issue" | "character" | "person" | "story_arc" | "team" | "location" | "concept" | "object" | "origin" | "power" | "publisher" | "series" | "movie" | "episode";
+  resource_type:
+    | "volume"
+    | "issue"
+    | "character"
+    | "person"
+    | "story_arc"
+    | "team"
+    | "location"
+    | "concept"
+    | "object"
+    | "origin"
+    | "power"
+    | "publisher"
+    | "series"
+    | "movie"
+    | "episode";
   site_detail_url: string;
 }
 
@@ -139,9 +156,12 @@ class ComicVineClient {
   private baseUrl: string = COMIC_VINE_BASE_URL;
   private apiKey: string | undefined = COMIC_VINE_API_KEY;
 
-  private buildUrl(endpoint: string, params: ComicVineRequestParams = {}): string {
+  private buildUrl(
+    endpoint: string,
+    params: ComicVineRequestParams = {},
+  ): string {
     const url = new URL(`${this.baseUrl}${endpoint}`);
-    
+
     const searchParams: ComicVineRequestParams = {
       api_key: this.apiKey,
       format: "json",
@@ -159,7 +179,7 @@ class ComicVineClient {
 
   private async makeRequest<T>(
     endpoint: string,
-    params: ComicVineRequestParams = {}
+    params: ComicVineRequestParams = {},
   ): Promise<ComicVineApiResponse<T>> {
     if (!this.apiKey) {
       throw new Error("Comic Vine API key is required");
@@ -169,7 +189,7 @@ class ComicVineClient {
 
     try {
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -194,7 +214,7 @@ class ComicVineClient {
     query: string,
     resources?: string[],
     limit: number = 10,
-    page: number = 1
+    page: number = 1,
   ): Promise<ComicVineApiResponse<ComicVineSearchResult>> {
     const offset = (page - 1) * limit;
     const params: ComicVineRequestParams = {
@@ -208,14 +228,14 @@ class ComicVineClient {
 
     return this.makeRequest<ComicVineSearchResult>(
       `/search/?query=${encodeURIComponent(query)}`,
-      params
+      params,
     );
   }
 
   async searchVolumes(
     query: string,
     limit: number = 10,
-    page: number = 1
+    page: number = 1,
   ): Promise<ComicVineApiResponse<ComicVineSearchResult>> {
     return this.search(query, ["volume"], limit, page);
   }
@@ -223,19 +243,19 @@ class ComicVineClient {
   async searchIssues(
     query: string,
     limit: number = 10,
-    page: number = 1
+    page: number = 1,
   ): Promise<ComicVineApiResponse<ComicVineSearchResult>> {
     return this.search(query, ["issue"], limit, page);
   }
 
   async getVolume(
     id: number,
-    fieldList?: string[]
+    fieldList?: string[],
   ): Promise<ComicVineApiResponse<ComicVineVolume>> {
     const params: ComicVineRequestParams = {
       filter: `id:${id}`,
     };
-    
+
     if (fieldList && fieldList.length > 0) {
       params.field_list = fieldList.join(",");
     }
@@ -248,7 +268,7 @@ class ComicVineClient {
     sort?: string,
     limit: number = 10,
     page: number = 1,
-    fieldList?: string[]
+    fieldList?: string[],
   ): Promise<ComicVineApiResponse<ComicVineVolume>> {
     const offset = (page - 1) * limit;
     const params: ComicVineRequestParams = {
@@ -273,10 +293,10 @@ class ComicVineClient {
 
   async getIssue(
     id: number,
-    fieldList?: string[]
+    fieldList?: string[],
   ): Promise<ComicVineApiResponse<ComicVineIssue>> {
     const params: ComicVineRequestParams = {};
-    
+
     if (fieldList && fieldList.length > 0) {
       params.field_list = fieldList.join(",");
     }
@@ -289,7 +309,7 @@ class ComicVineClient {
     sort?: string,
     limit: number = 10,
     page: number = 1,
-    fieldList?: string[]
+    fieldList?: string[],
   ): Promise<ComicVineApiResponse<ComicVineIssue>> {
     const offset = (page - 1) * limit;
     const params: ComicVineRequestParams = {
@@ -317,14 +337,14 @@ class ComicVineClient {
     sort?: string,
     limit: number = 100,
     page: number = 1,
-    fieldList?: string[]
+    fieldList?: string[],
   ): Promise<ComicVineApiResponse<ComicVineIssue>> {
     return this.getIssues(
       `volume:${volumeId}`,
       sort || "issue_number:asc",
       limit,
       page,
-      fieldList
+      fieldList,
     );
   }
 }

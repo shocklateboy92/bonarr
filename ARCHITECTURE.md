@@ -7,6 +7,7 @@ Bonarr is a modern web application for managing TV show downloads and organizati
 ## Core Purpose
 
 Bonarr automates the TV show acquisition workflow:
+
 1. **Search** for TV shows using TMDB metadata
 2. **Browse** seasons and episodes with detailed information
 3. **Find torrents** using Prowlarr or AnimeBytes APIs
@@ -17,23 +18,27 @@ Bonarr automates the TV show acquisition workflow:
 ## Technology Stack
 
 ### Frontend Framework
+
 - **SolidJS** - Reactive frontend framework with fine-grained reactivity
 - **SolidJS Start** - Full-stack meta-framework for SolidJS
 - **SUID** (Solid UI) - Material Design components for SolidJS
 - **TypeScript** - Type-safe development
 
 ### Build & Development
+
 - **Vite** - Fast development server and build tool
 - **Vinxi** - Build orchestration for SolidJS Start
 - **OpenAPI TypeScript** - Generates types from API specifications
 
 ### External Integrations
+
 - **TMDB API** - Movie/TV show metadata and images
 - **Prowlarr API** - Torrent indexer aggregation
 - **AnimeBytes API** - Specialized anime torrent tracker
 - **Transmission RPC** - Torrent client control
 
 ### Deployment
+
 - **Docker** - Containerized deployment with multi-stage builds
 - **Node.js** - Runtime environment
 
@@ -66,23 +71,27 @@ src/
 ### Key Components
 
 #### Search & Discovery
+
 - **TVShowSearch** - Search TMDB for TV shows
 - **TVShowDetail** - Display show information with seasons
 - **SeasonDetail** - Show episodes and available torrents
 
 #### Torrent Management
+
 - **TorrentSearch** - Search torrents via Prowlarr
 - **AnimeBytesSearch** - Search AnimeBytes tracker
 - **TorrentsList** - Display downloaded torrents
 - **TorrentFiles** - Browse files within a torrent
 
 #### Episode Matching
+
 - **EpisodeTorrentMatcher** - Core component for matching episodes to files
 - **FileSelectionModal** - Manual file selection interface
 
 ### API Integration Layer
 
 #### TMDB Client (`api/tmdb.ts`)
+
 - Typed API client using OpenAPI specifications
 - Handles authentication with Bearer tokens
 - Provides functions for:
@@ -91,11 +100,13 @@ src/
   - Season/episode information
 
 #### Prowlarr Client (`api/prowlarr.ts`)
+
 - Integrates with Prowlarr for torrent searching
 - Filters results to TV categories only
 - Handles API key authentication
 
 #### Transmission Client (`api/transmission.ts`)
+
 - RPC client for Transmission torrent management
 - Capabilities:
   - Add torrents via magnet links or files
@@ -103,6 +114,7 @@ src/
   - File priority and selection management
 
 #### AnimeBytes API (`queries/animebytes-api.ts`)
+
 - Specialized client for AnimeBytes private tracker
 - Server-side only to protect credentials
 - Advanced search with metadata parsing
@@ -110,9 +122,11 @@ src/
 ### Business Logic Layer
 
 #### Episode Matching Algorithm (`queries/applyMatches.ts`)
+
 The core intelligence of Bonarr lies in automatically matching TV show episodes to downloaded torrent files:
 
 **Pattern Recognition:**
+
 - `S01E05` format (standard)
 - `Season 1 Episode 5` format
 - `1x05` format
@@ -120,12 +134,14 @@ The core intelligence of Bonarr lies in automatically matching TV show episodes 
 - Confidence scoring (high/medium/low/none)
 
 **File Organization:**
+
 - Creates structured directory: `Show Name [tmdbid-123]/Season 01/`
 - Standardized naming: `Show Name - S01E05.mkv`
 - Hard links preserve original files while organizing library
 - Handles existing file detection and replacement
 
 **Confidence Levels:**
+
 - **High:** Exact season/episode pattern matches
 - **Medium:** Episode number with less specific context
 - **Low:** Weak pattern matches requiring review
@@ -186,21 +202,25 @@ File-based routing creates a logical navigation hierarchy:
 ### Integration Points
 
 **Prowlarr Integration:**
+
 - Aggregates multiple torrent indexers
 - Provides unified search interface
 - Returns standardized torrent metadata
 
 **AnimeBytes Integration:**
+
 - Specialized for anime content
 - Higher quality metadata and releases
 - Requires private tracker credentials
 
 **Transmission Integration:**
+
 - Remote torrent management
 - File listing and selection
 - Download progress monitoring
 
 **TMDB Integration:**
+
 - Authoritative TV show metadata
 - High-quality artwork and descriptions
 - Episode information and air dates
@@ -234,6 +254,7 @@ VITE_LIBRARY_ROOT=/path/to/media/library
 ### Docker Deployment
 
 Multi-stage Docker build optimizes for production:
+
 - Development dependencies separated from runtime
 - OpenAPI type generation during build
 - PUID/PGID support for file permissions
@@ -242,21 +263,25 @@ Multi-stage Docker build optimizes for production:
 ## Design Patterns
 
 ### Reactive Data Flow
+
 - Resources automatically refetch when dependencies change
 - Loading and error states handled declaratively
 - Optimistic updates for better UX
 
 ### Type Safety
+
 - OpenAPI schema generates exact API types
 - Full TypeScript coverage prevents runtime errors
 - Compile-time validation of API calls
 
 ### Component Composition
+
 - Shared layout components for consistent UI
 - Modal dialogs for complex interactions
 - Responsive design with mobile-first approach
 
 ### Error Handling
+
 - Graceful degradation when services unavailable
 - User-friendly error messages
 - Retry mechanisms for transient failures
@@ -264,18 +289,21 @@ Multi-stage Docker build optimizes for production:
 ## Development Guidelines
 
 ### Code Organization
+
 - Strict separation of concerns (UI, API, business logic)
 - Reusable utility functions in `/queries`
 - Generated types never manually edited
 - Consistent file naming and structure
 
 ### Performance Considerations
+
 - SolidJS fine-grained reactivity minimizes re-renders
 - Server-side API calls protect sensitive credentials
 - Efficient torrent file processing
 - Debounced search to prevent excessive API calls
 
 ### Security
+
 - API keys never exposed to client
 - Server-side AnimeBytes integration
 - CORS and authentication handled by external services

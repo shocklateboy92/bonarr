@@ -316,415 +316,437 @@ export default function EpisodeTorrentMatcher() {
     <>
       <Title>Match Episodes to Files | Bonarr</Title>
       <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: { xs: 1, sm: 2 },
-        }}
-      >
-        <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
-          <Button
-            startIcon={<ArrowBack />}
-            variant="outlined"
-            sx={{ minHeight: "48px" }}
-          >
-            Back to Torrents
-          </Button>
-        </A>
-        <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
-          <Button variant="outlined" sx={{ minHeight: "48px" }}>
-            Back to Season
-          </Button>
-        </A>
-      </Box>
+        <Box
+          sx={{
+            mb: 3,
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: { xs: 1, sm: 2 },
+          }}
+        >
+          <A href={`/show/${params.id}/season/${params.seasonNumber}/torrents`}>
+            <Button
+              startIcon={<ArrowBack />}
+              variant="outlined"
+              sx={{ minHeight: "48px" }}
+            >
+              Back to Torrents
+            </Button>
+          </A>
+          <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+            <Button variant="outlined" sx={{ minHeight: "48px" }}>
+              Back to Season
+            </Button>
+          </A>
+        </Box>
 
-      <Suspense
-        fallback={
-          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
-          </Box>
-        }
-      >
-        <Show when={season.error || show.error || torrent.error}>
-          <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
-            Error:{" "}
-            {season.error?.message ||
-              show.error?.message ||
-              torrent.error?.message}
-          </Typography>
-        </Show>
+        <Suspense
+          fallback={
+            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+              <CircularProgress />
+            </Box>
+          }
+        >
+          <Show when={season.error || show.error || torrent.error}>
+            <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
+              Error:{" "}
+              {season.error?.message ||
+                show.error?.message ||
+                torrent.error?.message}
+            </Typography>
+          </Show>
 
-        <Show when={season() && show() && torrent()}>
-          <Box>
+          <Show when={season() && show() && torrent()}>
             <Box>
-              {/* Context Header */}
-              <Box sx={{ mb: 3 }}>
-                <Typography
-                  variant="h4"
-                  sx={{ mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}
-                >
-                  Match Episodes to Files
-                </Typography>
-                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                  Season {params.seasonNumber} • {getTotalCount()} Episodes
-                </Typography>
-
-                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                  <Chip
-                    label={`${getMatchedCount()} auto-matched`}
-                    color={
-                      getMatchedCount() === getTotalCount()
-                        ? "success"
-                        : "primary"
-                    }
-                    size="small"
-                  />
-                  <Show when={getTotalCount() - getMatchedCount() > 0}>
-                    <Chip
-                      label={`${
-                        getTotalCount() - getMatchedCount()
-                      } need attention`}
-                      color="warning"
-                      size="small"
-                    />
-                  </Show>
-                </Box>
-
-                <Show when={torrent()}>
+              <Box>
+                {/* Context Header */}
+                <Box sx={{ mb: 3 }}>
                   <Typography
-                    variant="body2"
+                    variant="h4"
+                    sx={{ mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}
+                  >
+                    Match Episodes to Files
+                  </Typography>
+                  <Typography
+                    variant="h6"
                     color="text.secondary"
                     sx={{ mb: 2 }}
                   >
-                    Torrent: {torrent()?.name}
+                    Season {params.seasonNumber} • {getTotalCount()} Episodes
                   </Typography>
-                </Show>
 
-                <Show when={getMatchedCount() < getTotalCount()}>
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    Review the matches below. Episodes with low confidence or no
-                    matches may need manual correction.
+                  <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                    <Chip
+                      label={`${getMatchedCount()} auto-matched`}
+                      color={
+                        getMatchedCount() === getTotalCount()
+                          ? "success"
+                          : "primary"
+                      }
+                      size="small"
+                    />
+                    <Show when={getTotalCount() - getMatchedCount() > 0}>
+                      <Chip
+                        label={`${
+                          getTotalCount() - getMatchedCount()
+                        } need attention`}
+                        color="warning"
+                        size="small"
+                      />
+                    </Show>
+                  </Box>
+
+                  <Show when={torrent()}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2 }}
+                    >
+                      Torrent: {torrent()?.name}
+                    </Typography>
+                  </Show>
+
+                  <Show when={getMatchedCount() < getTotalCount()}>
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      Review the matches below. Episodes with low confidence or
+                      no matches may need manual correction.
+                    </Alert>
+                  </Show>
+                </Box>
+
+                {/* Episode Matches List */}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <For each={matches()}>
+                    {(match) => (
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          border:
+                            match.confidence === "none"
+                              ? "2px solid"
+                              : undefined,
+                          borderColor:
+                            match.confidence === "none"
+                              ? "error.main"
+                              : undefined,
+                        }}
+                      >
+                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", sm: "row" },
+                              gap: { xs: 2, sm: 3 },
+                              alignItems: { xs: "center", sm: "flex-start" },
+                            }}
+                          >
+                            {/* Episode Thumbnail */}
+                            <Show when={match.episode.still_path}>
+                              <img
+                                src={`https://image.tmdb.org/t/p/w300${match.episode.still_path}`}
+                                alt={match.episode.name}
+                                style={{
+                                  width: "100%",
+                                  "max-width": "120px",
+                                  height: "68px",
+                                  "object-fit": "cover",
+                                  "border-radius": "4px",
+                                  "flex-shrink": "0",
+                                }}
+                              />
+                            </Show>
+
+                            {/* Episode Info */}
+                            <Box
+                              sx={{
+                                flex: 1,
+                                minWidth: 0,
+                                textAlign: { xs: "center", sm: "left" },
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  mb: 1,
+                                  fontSize: { xs: "1rem", sm: "1.25rem" },
+                                }}
+                              >
+                                Episode {match.episode.episode_number}:{" "}
+                                {match.episode.name}
+                              </Typography>
+                              <Show when={match.episode.air_date}>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mb: 1 }}
+                                >
+                                  {match.episode.air_date}
+                                </Typography>
+                              </Show>
+
+                              {/* Match Status */}
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  justifyContent: {
+                                    xs: "center",
+                                    sm: "flex-start",
+                                  },
+                                  mb: match.file ? 1 : 0,
+                                }}
+                              >
+                                {getConfidenceIcon(match.confidence)}
+                                <Show when={match.file}>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: "medium",
+                                      flex: 1,
+                                      minWidth: 0,
+                                    }}
+                                  >
+                                    {match.file?.name.split("/").pop()}
+                                  </Typography>
+                                </Show>
+                                <Show when={!match.file}>
+                                  <Typography
+                                    variant="body2"
+                                    color="error"
+                                    sx={{ fontWeight: "medium" }}
+                                  >
+                                    No match found
+                                  </Typography>
+                                </Show>
+                              </Box>
+
+                              <Show when={match.file}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    flexWrap: "wrap",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Chip
+                                    label={`${match.confidence} confidence`}
+                                    color={getConfidenceColor(match.confidence)}
+                                    size="small"
+                                  />
+                                  <Chip
+                                    label={transmissionClient.formatBytes(
+                                      match.file?.length || 0,
+                                    )}
+                                    variant="outlined"
+                                    size="small"
+                                  />
+                                  <Show when={match.file?.name.includes("/")}>
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {match.file?.name.substring(
+                                        0,
+                                        match.file.name.lastIndexOf("/"),
+                                      )}
+                                    </Typography>
+                                  </Show>
+                                </Box>
+                              </Show>
+                            </Box>
+
+                            {/* Action Button */}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1,
+                                minWidth: { xs: "100%", sm: "auto" },
+                              }}
+                            >
+                              <Button
+                                variant={match.file ? "outlined" : "contained"}
+                                color={match.file ? "primary" : "error"}
+                                size="small"
+                                startIcon={
+                                  match.file ? <SwapHoriz /> : undefined
+                                }
+                                sx={{ minHeight: "36px" }}
+                                onClick={() => handleChangeFile(match.episode)}
+                              >
+                                {match.file ? "Change File" : "Select File"}
+                              </Button>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </For>
+                </Box>
+
+                {/* Action Buttons */}
+                <Box
+                  sx={{
+                    mt: 4,
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "center",
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    sx={{ minHeight: "48px" }}
+                  >
+                    Review All Matches
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    disabled={getMatchedCount() === 0 || isApplying()}
+                    onClick={handleApplyMatches}
+                    sx={{ minHeight: "48px" }}
+                  >
+                    {isApplying() ? (
+                      <>
+                        <CircularProgress size={20} sx={{ mr: 1 }} />
+                        Applying Matches...
+                      </>
+                    ) : (
+                      `Apply Matches (${getMatchedCount()}/${getTotalCount()})`
+                    )}
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Show>
+        </Suspense>
+
+        {/* File Selection Modal */}
+        <Show when={modalOpen() && selectedEpisode() && torrent()}>
+          <FileSelectionModal
+            open={modalOpen()}
+            onClose={handleModalClose}
+            episode={selectedEpisode()}
+            files={torrent()?.files || []}
+            currentFile={getCurrentFileForEpisode(selectedEpisode())}
+            onFileSelect={handleFileSelect}
+            onFileSelectAndNext={handleFileSelectAndNext}
+            hasNextEpisode={getNextEpisode(selectedEpisode()) !== null}
+          />
+        </Show>
+
+        {/* Results Dialog */}
+        <Show when={resultDialogOpen() && applyResult()}>
+          <FullscreenMobileDialog
+            open={resultDialogOpen()}
+            onClose={() => setResultDialogOpen(false)}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle>
+              {applyResult()?.success
+                ? "Matches Applied Successfully!"
+                : "Error Applying Matches"}
+            </DialogTitle>
+            <FullscreenMobileDialogContent>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  {applyResult()?.success
+                    ? `Successfully created ${applyResult()?.processedCount} hard links.`
+                    : "Some errors occurred while applying matches."}
+                </Typography>
+
+                <Show
+                  when={
+                    applyResult()?.errors && applyResult()!.errors.length > 0
+                  }
+                >
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    <Typography variant="body2" component="div">
+                      <strong>Errors:</strong>
+                      <ul
+                        style={{ margin: "8px 0 0 0", "padding-left": "20px" }}
+                      >
+                        <For each={applyResult()?.errors}>
+                          {(error) => <li>{error}</li>}
+                        </For>
+                      </ul>
+                    </Typography>
                   </Alert>
                 </Show>
               </Box>
 
-              {/* Episode Matches List */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <For each={matches()}>
-                  {(match) => (
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        border:
-                          match.confidence === "none" ? "2px solid" : undefined,
-                        borderColor:
-                          match.confidence === "none"
-                            ? "error.main"
-                            : undefined,
-                      }}
-                    >
-                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: { xs: "column", sm: "row" },
-                            gap: { xs: 2, sm: 3 },
-                            alignItems: { xs: "center", sm: "flex-start" },
-                          }}
-                        >
-                          {/* Episode Thumbnail */}
-                          <Show when={match.episode.still_path}>
-                            <img
-                              src={`https://image.tmdb.org/t/p/w300${match.episode.still_path}`}
-                              alt={match.episode.name}
-                              style={{
-                                width: "100%",
-                                "max-width": "120px",
-                                height: "68px",
-                                "object-fit": "cover",
-                                "border-radius": "4px",
-                                "flex-shrink": "0",
-                              }}
-                            />
-                          </Show>
-
-                          {/* Episode Info */}
-                          <Box
-                            sx={{
-                              flex: 1,
-                              minWidth: 0,
-                              textAlign: { xs: "center", sm: "left" },
-                            }}
-                          >
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                mb: 1,
-                                fontSize: { xs: "1rem", sm: "1.25rem" },
-                              }}
-                            >
-                              Episode {match.episode.episode_number}:{" "}
-                              {match.episode.name}
-                            </Typography>
-                            <Show when={match.episode.air_date}>
+              <Show
+                when={
+                  applyResult()?.details && applyResult()!.details.length > 0
+                }
+              >
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Details:
+                </Typography>
+                <List dense>
+                  <For each={applyResult()?.details}>
+                    {(detail) => (
+                      <ListItem>
+                        <ListItemIcon>
+                          {detail.status === "success" ? (
+                            <CheckCircle color="success" />
+                          ) : (
+                            <ErrorIcon color="error" />
+                          )}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={`Episode ${detail.episode}`}
+                          secondary={
+                            <Box>
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
-                                sx={{ mb: 1 }}
                               >
-                                {match.episode.air_date}
+                                {detail.status === "success" ? (
+                                  <>
+                                    <LinkIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                                    Created: {detail.targetFile}
+                                  </>
+                                ) : (
+                                  detail.error
+                                )}
                               </Typography>
-                            </Show>
-
-                            {/* Match Status */}
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                                justifyContent: {
-                                  xs: "center",
-                                  sm: "flex-start",
-                                },
-                                mb: match.file ? 1 : 0,
-                              }}
-                            >
-                              {getConfidenceIcon(match.confidence)}
-                              <Show when={match.file}>
+                              {detail.sourceFile && (
                                 <Typography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: "medium",
-                                    flex: 1,
-                                    minWidth: 0,
-                                  }}
+                                  variant="caption"
+                                  color="text.secondary"
                                 >
-                                  {match.file?.name.split("/").pop()}
+                                  Source: {detail.sourceFile}
                                 </Typography>
-                              </Show>
-                              <Show when={!match.file}>
-                                <Typography
-                                  variant="body2"
-                                  color="error"
-                                  sx={{ fontWeight: "medium" }}
-                                >
-                                  No match found
-                                </Typography>
-                              </Show>
-                            </Box>
-
-                            <Show when={match.file}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  gap: 1,
-                                  flexWrap: "wrap",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Chip
-                                  label={`${match.confidence} confidence`}
-                                  color={getConfidenceColor(match.confidence)}
-                                  size="small"
-                                />
-                                <Chip
-                                  label={transmissionClient.formatBytes(
-                                    match.file?.length || 0,
-                                  )}
-                                  variant="outlined"
-                                  size="small"
-                                />
-                                <Show when={match.file?.name.includes("/")}>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                  >
-                                    {match.file?.name.substring(
-                                      0,
-                                      match.file.name.lastIndexOf("/"),
-                                    )}
-                                  </Typography>
-                                </Show>
-                              </Box>
-                            </Show>
-                          </Box>
-
-                          {/* Action Button */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                              minWidth: { xs: "100%", sm: "auto" },
-                            }}
-                          >
-                            <Button
-                              variant={match.file ? "outlined" : "contained"}
-                              color={match.file ? "primary" : "error"}
-                              size="small"
-                              startIcon={match.file ? <SwapHoriz /> : undefined}
-                              sx={{ minHeight: "36px" }}
-                              onClick={() => handleChangeFile(match.episode)}
-                            >
-                              {match.file ? "Change File" : "Select File"}
-                            </Button>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  )}
-                </For>
-              </Box>
-
-              {/* Action Buttons */}
-              <Box
-                sx={{
-                  mt: 4,
-                  display: "flex",
-                  gap: 2,
-                  flexDirection: { xs: "column", sm: "row" },
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{ minHeight: "48px" }}
-                >
-                  Review All Matches
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  disabled={getMatchedCount() === 0 || isApplying()}
-                  onClick={handleApplyMatches}
-                  sx={{ minHeight: "48px" }}
-                >
-                  {isApplying() ? (
-                    <>
-                      <CircularProgress size={20} sx={{ mr: 1 }} />
-                      Applying Matches...
-                    </>
-                  ) : (
-                    `Apply Matches (${getMatchedCount()}/${getTotalCount()})`
-                  )}
-                </Button>
-              </Box>
-            </Box>
-          </Box>
-        </Show>
-      </Suspense>
-
-      {/* File Selection Modal */}
-      <Show when={modalOpen() && selectedEpisode() && torrent()}>
-        <FileSelectionModal
-          open={modalOpen()}
-          onClose={handleModalClose}
-          episode={selectedEpisode()}
-          files={torrent()?.files || []}
-          currentFile={getCurrentFileForEpisode(selectedEpisode())}
-          onFileSelect={handleFileSelect}
-          onFileSelectAndNext={handleFileSelectAndNext}
-          hasNextEpisode={getNextEpisode(selectedEpisode()) !== null}
-        />
-      </Show>
-
-      {/* Results Dialog */}
-      <Show when={resultDialogOpen() && applyResult()}>
-        <FullscreenMobileDialog
-          open={resultDialogOpen()}
-          onClose={() => setResultDialogOpen(false)}
-          maxWidth="md"
-          fullWidth
-        >
-          <DialogTitle>
-            {applyResult()?.success
-              ? "Matches Applied Successfully!"
-              : "Error Applying Matches"}
-          </DialogTitle>
-          <FullscreenMobileDialogContent>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {applyResult()?.success
-                  ? `Successfully created ${applyResult()?.processedCount} hard links.`
-                  : "Some errors occurred while applying matches."}
-              </Typography>
-
-              <Show
-                when={applyResult()?.errors && applyResult()!.errors.length > 0}
-              >
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  <Typography variant="body2" component="div">
-                    <strong>Errors:</strong>
-                    <ul style={{ margin: "8px 0 0 0", "padding-left": "20px" }}>
-                      <For each={applyResult()?.errors}>
-                        {(error) => <li>{error}</li>}
-                      </For>
-                    </ul>
-                  </Typography>
-                </Alert>
-              </Show>
-            </Box>
-
-            <Show
-              when={applyResult()?.details && applyResult()!.details.length > 0}
-            >
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Details:
-              </Typography>
-              <List dense>
-                <For each={applyResult()?.details}>
-                  {(detail) => (
-                    <ListItem>
-                      <ListItemIcon>
-                        {detail.status === "success" ? (
-                          <CheckCircle color="success" />
-                        ) : (
-                          <ErrorIcon color="error" />
-                        )}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`Episode ${detail.episode}`}
-                        secondary={
-                          <Box>
-                            <Typography variant="body2" color="text.secondary">
-                              {detail.status === "success" ? (
-                                <>
-                                  <LinkIcon sx={{ fontSize: 14, mr: 0.5 }} />
-                                  Created: {detail.targetFile}
-                                </>
-                              ) : (
-                                detail.error
                               )}
-                            </Typography>
-                            {detail.sourceFile && (
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                Source: {detail.sourceFile}
-                              </Typography>
-                            )}
-                          </Box>
-                        }
-                      />
-                    </ListItem>
-                  )}
-                </For>
-              </List>
-            </Show>
-          </FullscreenMobileDialogContent>
-          <FullscreenMobileDialogActions>
-            <Button variant="outlined" onClick={() => setResultDialogOpen(false)}>Close</Button>
-            <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
-              <Button variant="contained">Back to Season</Button>
-            </A>
-          </FullscreenMobileDialogActions>
-        </FullscreenMobileDialog>
-      </Show>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    )}
+                  </For>
+                </List>
+              </Show>
+            </FullscreenMobileDialogContent>
+            <FullscreenMobileDialogActions>
+              <Button
+                variant="outlined"
+                onClick={() => setResultDialogOpen(false)}
+              >
+                Close
+              </Button>
+              <A href={`/show/${params.id}/season/${params.seasonNumber}`}>
+                <Button variant="contained">Back to Season</Button>
+              </A>
+            </FullscreenMobileDialogActions>
+          </FullscreenMobileDialog>
+        </Show>
       </Box>
     </>
   );

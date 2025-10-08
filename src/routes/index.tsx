@@ -6,8 +6,6 @@ const isManagMode = import.meta.env.VITE_BONARR_MEDIA_MODE === "manga";
 
 export default function Home() {
   return (
-    <PageLayout>
-      {isManagMode ? <VolumeSearch /> : <TVShowSearch />}
-    </PageLayout>
+    <PageLayout>{isManagMode ? <VolumeSearch /> : <TVShowSearch />}</PageLayout>
   );
 }

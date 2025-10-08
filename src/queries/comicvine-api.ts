@@ -1,5 +1,11 @@
 import { query } from "@solidjs/router";
-import { comicVineClient, ComicVineApiResponse, ComicVineSearchResult, ComicVineVolume, ComicVineIssue } from "../api/comicvine";
+import {
+  comicVineClient,
+  ComicVineApiResponse,
+  ComicVineSearchResult,
+  ComicVineVolume,
+  ComicVineIssue,
+} from "../api/comicvine";
 
 export interface SearchComicVineParams {
   query: string;
@@ -8,7 +14,9 @@ export interface SearchComicVineParams {
 }
 
 export const searchComicVineVolumes = query(
-  async (params: SearchComicVineParams): Promise<ComicVineApiResponse<ComicVineSearchResult>> => {
+  async (
+    params: SearchComicVineParams,
+  ): Promise<ComicVineApiResponse<ComicVineSearchResult>> => {
     "use server";
 
     const { query: searchQuery, limit = 10, page = 1 } = params;
@@ -56,7 +64,15 @@ export const getVolumeIssues = query(
       "issue_number:asc",
       100,
       1,
-      ["id", "name", "issue_number", "image", "cover_date", "store_date", "deck"]
+      [
+        "id",
+        "name",
+        "issue_number",
+        "image",
+        "cover_date",
+        "store_date",
+        "deck",
+      ],
     );
     return response.results;
   },

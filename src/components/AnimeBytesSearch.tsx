@@ -28,7 +28,10 @@ import {
   CalendarToday,
   ImageNotSupported,
 } from "@suid/icons-material";
-import { searchAnimeBytes, type AnimeBytesGroup } from "../queries/animebytes-api";
+import {
+  searchAnimeBytes,
+  type AnimeBytesGroup,
+} from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
 
 interface AnimeBytesSearchProps {
@@ -43,18 +46,18 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
   const [query, setQuery] = createSignal(
     Array.isArray(searchParams.q)
       ? searchParams.q[0] || ""
-      : searchParams.q || ""
+      : searchParams.q || "",
   );
 
   const [searchResults, { refetch }] = createResource(
     () => query()?.trim(),
     (searchQuery) =>
-      searchAnimeBytes({ 
-        query: searchQuery, 
-        type: "anime", 
-        limit: 25, 
-        mangaOnly: mangaMode 
-      })
+      searchAnimeBytes({
+        query: searchQuery,
+        type: "anime",
+        limit: 25,
+        mangaOnly: mangaMode,
+      }),
   );
 
   const handleSearch = () => {
@@ -79,13 +82,13 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
   const handleDownload = async (
     downloadUrl: string,
     torrentName: string,
-    torrentId: number
+    torrentId: number,
   ) => {
     try {
       const downloadDir = import.meta.env.VITE_TORRENT_FILTER_PATH;
       const result = await transmissionClient.addTorrent(
         downloadUrl,
-        downloadDir
+        downloadDir,
       );
 
       if (result.id) {
@@ -95,7 +98,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
           navigate(`/volume/${params.id}/torrents/${result.id}`);
         } else {
           navigate(
-            `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`
+            `/show/${params.id}/season/${params.seasonNumber}/torrents/${result.id}`,
           );
         }
       } else {
@@ -103,7 +106,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
           `Torrent "${torrentName}" may already exist or could not be added`,
           {
             icon: "⚠️",
-          }
+          },
         );
       }
     } catch (error) {
@@ -139,553 +142,576 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
     <>
       <Title>AnimeBytes Search | Bonarr</Title>
       <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, md: 2 } }}>
-      <Box sx={{ mb: 3 }}>
-        <A href={mangaMode ? `/volume/${params.id}` : `/show/${params.id}/season/${params.seasonNumber}`}>
-          <Button startIcon={<ArrowBack />} variant="outlined">
-            {mangaMode ? "Back to Volume" : "Back to Season"}
-          </Button>
-        </A>
-      </Box>
-
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          mb: 2,
-          fontSize: { xs: "1.5rem", md: "2.125rem" },
-        }}
-      >
-        {mangaMode ? "AnimeBytes Manga Search" : `AnimeBytes Search - Season ${params.seasonNumber}`}
-      </Typography>
-
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        {mangaMode 
-          ? "Search AnimeBytes directly for high-quality manga torrents"
-          : "Search AnimeBytes directly for high-quality anime torrents"
-        }
-      </Typography>
-
-      {/* Search Input */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          label={mangaMode ? "Search AnimeBytes for Manga" : "Search AnimeBytes"}
-          variant="outlined"
-          value={query()}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Show when={query().trim()}>
-                  <IconButton onClick={handleClear} edge="end">
-                    <Clear />
-                  </IconButton>
-                </Show>
-                <IconButton
-                  onClick={handleSearch}
-                  edge="end"
-                  disabled={!query().trim()}
-                  color="primary"
-                >
-                  <Search />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-        <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
-          <Chip label="AnimeBytes" size="small" color="primary" />
-          <Chip label="Direct Search" size="small" variant="outlined" />
-          <Chip label={mangaMode ? "Manga Only" : "Groups & Series"} size="small" variant="outlined" />
-          {mangaMode && <Chip label="Printed Media" size="small" color="secondary" />}
+        <Box sx={{ mb: 3 }}>
+          <A
+            href={
+              mangaMode
+                ? `/volume/${params.id}`
+                : `/show/${params.id}/season/${params.seasonNumber}`
+            }
+          >
+            <Button startIcon={<ArrowBack />} variant="outlined">
+              {mangaMode ? "Back to Volume" : "Back to Season"}
+            </Button>
+          </A>
         </Box>
-      </Box>
 
-      <Suspense
-        fallback={
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              my: 4,
-              gap: 2,
-            }}
-          >
-            <CircularProgress size={24} />
-            <Typography>Searching AnimeBytes...</Typography>
-          </Box>
-        }
-      >
-        <Show when={searchResults.error}>
-          <Card sx={{ mb: 2, backgroundColor: "error.light" }}>
-            <CardContent>
-              <Typography color="error" sx={{ textAlign: "center" }}>
-                Error searching AnimeBytes: {searchResults.error?.message}
-              </Typography>
-              <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
-                Check your AnimeBytes credentials and network connectivity.
-              </Typography>
-            </CardContent>
-          </Card>
-        </Show>
-
-        <Show
-          when={
-            query().trim() &&
-            searchResults()?.length === 0 &&
-            !searchResults.loading
-          }
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            mb: 2,
+            fontSize: { xs: "1.5rem", md: "2.125rem" },
+          }}
         >
-          <Card>
-            <CardContent>
-              <Typography
-                sx={{ textAlign: "center", py: 4 }}
-                color="text.secondary"
-              >
-{mangaMode 
-                  ? `No manga found on AnimeBytes for "${query()}". Try different search terms.`
-                  : `No results found on AnimeBytes for "${query()}". Try different search terms.`
-                }
-              </Typography>
-            </CardContent>
-          </Card>
-        </Show>
+          {mangaMode
+            ? "AnimeBytes Manga Search"
+            : `AnimeBytes Search - Season ${params.seasonNumber}`}
+        </Typography>
 
-        <Show when={searchResults() && searchResults()!.length > 0}>
-          <Box
-            sx={{
-              mb: 2,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          {mangaMode
+            ? "Search AnimeBytes directly for high-quality manga torrents"
+            : "Search AnimeBytes directly for high-quality anime torrents"}
+        </Typography>
+
+        {/* Search Input */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            label={
+              mangaMode ? "Search AnimeBytes for Manga" : "Search AnimeBytes"
+            }
+            variant="outlined"
+            value={query()}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Show when={query().trim()}>
+                    <IconButton onClick={handleClear} edge="end">
+                      <Clear />
+                    </IconButton>
+                  </Show>
+                  <IconButton
+                    onClick={handleSearch}
+                    edge="end"
+                    disabled={!query().trim()}
+                    color="primary"
+                  >
+                    <Search />
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Found {searchResults()!.length} series/groups
-            </Typography>
+          />
+          <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Chip label="AnimeBytes" size="small" color="primary" />
+            <Chip label="Direct Search" size="small" variant="outlined" />
             <Chip
-              label={`Searching: "${query()}"`}
+              label={mangaMode ? "Manga Only" : "Groups & Series"}
               size="small"
               variant="outlined"
-              onDelete={handleClear}
             />
+            {mangaMode && (
+              <Chip label="Printed Media" size="small" color="secondary" />
+            )}
           </Box>
+        </Box>
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <For each={searchResults()}>
-              {(group: AnimeBytesGroup) => (
-                <Card
-                  sx={{
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                    },
-                  }}
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                my: 4,
+                gap: 2,
+              }}
+            >
+              <CircularProgress size={24} />
+              <Typography>Searching AnimeBytes...</Typography>
+            </Box>
+          }
+        >
+          <Show when={searchResults.error}>
+            <Card sx={{ mb: 2, backgroundColor: "error.light" }}>
+              <CardContent>
+                <Typography color="error" sx={{ textAlign: "center" }}>
+                  Error searching AnimeBytes: {searchResults.error?.message}
+                </Typography>
+                <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                  Check your AnimeBytes credentials and network connectivity.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Show>
+
+          <Show
+            when={
+              query().trim() &&
+              searchResults()?.length === 0 &&
+              !searchResults.loading
+            }
+          >
+            <Card>
+              <CardContent>
+                <Typography
+                  sx={{ textAlign: "center", py: 4 }}
+                  color="text.secondary"
                 >
-                  <CardContent sx={{ p: 0 }}>
-                    {/* Group Header */}
-                    <Box sx={{ p: 3, pb: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 2,
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        {/* Cover Image */}
-                        <Show
-                          when={group.Image}
-                          fallback={
-                            <Avatar
-                              sx={{ width: 80, height: 120, borderRadius: 1 }}
-                            >
-                              <ImageNotSupported />
-                            </Avatar>
-                          }
+                  {mangaMode
+                    ? `No manga found on AnimeBytes for "${query()}". Try different search terms.`
+                    : `No results found on AnimeBytes for "${query()}". Try different search terms.`}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Show>
+
+          <Show when={searchResults() && searchResults()!.length > 0}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Found {searchResults()!.length} series/groups
+              </Typography>
+              <Chip
+                label={`Searching: "${query()}"`}
+                size="small"
+                variant="outlined"
+                onDelete={handleClear}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <For each={searchResults()}>
+                {(group: AnimeBytesGroup) => (
+                  <Card
+                    sx={{
+                      transition: "all 0.2s ease-in-out",
+                      "&:hover": {
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 0 }}>
+                      {/* Group Header */}
+                      <Box sx={{ p: 3, pb: 2 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 2,
+                            alignItems: "flex-start",
+                          }}
                         >
-                          <Box
-                            component="img"
-                            src={group.Image}
-                            alt={group.SeriesName || group.GroupName}
-                            sx={{
-                              width: 80,
-                              height: 120,
-                              objectFit: "cover",
-                              borderRadius: 1,
-                              flexShrink: 0,
-                            }}
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        </Show>
-
-                        {/* Group Info */}
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography
-                            variant="h5"
-                            component="h2"
-                            sx={{ mb: 1, fontWeight: "bold" }}
-                          >
-                            {group.SeriesName || group.GroupName}
-                          </Typography>
-
+                          {/* Cover Image */}
                           <Show
-                            when={
-                              group.SeriesName &&
-                              group.GroupName !== group.SeriesName
+                            when={group.Image}
+                            fallback={
+                              <Avatar
+                                sx={{ width: 80, height: 120, borderRadius: 1 }}
+                              >
+                                <ImageNotSupported />
+                              </Avatar>
                             }
                           >
-                            <Typography
-                              variant="subtitle1"
-                              color="text.secondary"
-                              sx={{ mb: 1 }}
-                            >
-                              {group.GroupName}
-                            </Typography>
+                            <Box
+                              component="img"
+                              src={group.Image}
+                              alt={group.SeriesName || group.GroupName}
+                              sx={{
+                                width: 80,
+                                height: 120,
+                                objectFit: "cover",
+                                borderRadius: 1,
+                                flexShrink: 0,
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
                           </Show>
 
-                          {/* Metadata chips */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 1,
-                              flexWrap: "wrap",
-                              mb: 2,
-                            }}
-                          >
-                            <Show when={group.Year}>
-                              <Chip
-                                icon={<CalendarToday />}
-                                label={group.Year}
-                                size="small"
-                                color="primary"
-                                sx={{ paddingLeft: "0.3em" }}
-                              />
-                            </Show>
-                            <Chip
-                              icon={<Category />}
-                              label={group.CategoryName}
-                              size="small"
-                              variant="outlined"
-                              sx={{ paddingLeft: "0.3em" }}
-                            />
-                            <Show when={group.EpCount}>
-                              <Chip
-                                label={`${group.EpCount} episodes`}
-                                size="small"
-                                variant="outlined"
-                              />
-                            </Show>
-                            <Show when={group.Ongoing}>
-                              <Chip
-                                label="Ongoing"
-                                size="small"
-                                color="warning"
-                              />
-                            </Show>
-                          </Box>
+                          {/* Group Info */}
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography
+                              variant="h5"
+                              component="h2"
+                              sx={{ mb: 1, fontWeight: "bold" }}
+                            >
+                              {group.SeriesName || group.GroupName}
+                            </Typography>
 
-                          {/* Stats */}
-                          <Box
-                            sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}
-                          >
+                            <Show
+                              when={
+                                group.SeriesName &&
+                                group.GroupName !== group.SeriesName
+                              }
+                            >
+                              <Typography
+                                variant="subtitle1"
+                                color="text.secondary"
+                                sx={{ mb: 1 }}
+                              >
+                                {group.GroupName}
+                              </Typography>
+                            </Show>
+
+                            {/* Metadata chips */}
                             <Box
                               sx={{
                                 display: "flex",
-                                alignItems: "center",
-                                gap: 0.5,
+                                gap: 1,
+                                flexWrap: "wrap",
+                                mb: 2,
                               }}
                             >
-                              <FileDownload fontSize="small" color="action" />
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {group.Snatched} snatches
-                              </Typography>
-                            </Box>
-                            <Show when={group.Comments > 0}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.5,
-                                }}
-                              >
-                                <Info fontSize="small" color="action" />
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  {group.Comments} comments
-                                </Typography>
-                              </Box>
-                            </Show>
-                            <Show when={group.Votes > 0}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.5,
-                                }}
-                              >
-                                <ThumbUp fontSize="small" color="action" />
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  {group.AvgVote}/10 ({group.Votes} votes)
-                                </Typography>
-                              </Box>
-                            </Show>
-                          </Box>
-
-                          {/* Alternative titles */}
-                          <Show when={group.SynonymnsV2}>
-                            <Box sx={{ mt: 2 }}>
-                              <Show when={group.SynonymnsV2?.Japanese}>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  <strong>Japanese:</strong>{" "}
-                                  {group.SynonymnsV2?.Japanese}
-                                </Typography>
+                              <Show when={group.Year}>
+                                <Chip
+                                  icon={<CalendarToday />}
+                                  label={group.Year}
+                                  size="small"
+                                  color="primary"
+                                  sx={{ paddingLeft: "0.3em" }}
+                                />
                               </Show>
-                              <Show when={group.SynonymnsV2?.Romaji}>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  <strong>Romaji:</strong>{" "}
-                                  {group.SynonymnsV2?.Romaji}
-                                </Typography>
-                              </Show>
-                            </Box>
-                          </Show>
-                        </Box>
-                      </Box>
-
-                      {/* Tags */}
-                      <Show
-                        when={
-                          group.Tags?.filter((tag) => tag.trim()).length > 0
-                        }
-                      >
-                        <Box
-                          sx={{
-                            mt: 2,
-                            display: "flex",
-                            gap: 1,
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <For each={group.Tags.filter((tag) => tag.trim())}>
-                            {(tag) => (
                               <Chip
-                                label={tag}
+                                icon={<Category />}
+                                label={group.CategoryName}
                                 size="small"
                                 variant="outlined"
-                                sx={{ fontSize: "0.7rem" }}
+                                sx={{ paddingLeft: "0.3em" }}
                               />
-                            )}
-                          </For>
-                        </Box>
-                      </Show>
-                    </Box>
+                              <Show when={group.EpCount}>
+                                <Chip
+                                  label={`${group.EpCount} episodes`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              </Show>
+                              <Show when={group.Ongoing}>
+                                <Chip
+                                  label="Ongoing"
+                                  size="small"
+                                  color="warning"
+                                />
+                              </Show>
+                            </Box>
 
-                    <Divider />
-
-                    {/* Torrents */}
-                    <Box sx={{ p: 2 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          mb: 2,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                        }}
-                      >
-                        <Download />
-                        Available Torrents (
-                        {group.Torrents.filter((t) => t.Status === 0).length})
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 1,
-                        }}
-                      >
-                        <For
-                          each={group.Torrents.filter(
-                            (torrent) => torrent.Status === 0
-                          )}
-                        >
-                          {(torrent) => (
-                            <Card
-                              variant="outlined"
-                              sx={{ backgroundColor: "action.hover" }}
+                            {/* Stats */}
+                            <Box
+                              sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}
                             >
-                              <CardContent sx={{ p: 2 }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
+                                }}
+                              >
+                                <FileDownload fontSize="small" color="action" />
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  {group.Snatched} snatches
+                                </Typography>
+                              </Box>
+                              <Show when={group.Comments > 0}>
                                 <Box
                                   sx={{
                                     display: "flex",
-                                    flexDirection: { xs: "column", sm: "row" },
-                                    justifyContent: "space-between",
-                                    alignItems: {
-                                      xs: "stretch",
-                                      sm: "flex-start",
-                                    },
-                                    gap: 2,
+                                    alignItems: "center",
+                                    gap: 0.5,
                                   }}
                                 >
-                                  <Box sx={{ flex: 1 }}>
-                                    <Typography
-                                      variant="body1"
-                                      sx={{ fontWeight: "medium", mb: 1 }}
-                                    >
-                                      {torrent.EditionData?.EditionTitle || torrent.Property}
-                                    </Typography>
+                                  <Info fontSize="small" color="action" />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {group.Comments} comments
+                                  </Typography>
+                                </Box>
+                              </Show>
+                              <Show when={group.Votes > 0}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  <ThumbUp fontSize="small" color="action" />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {group.AvgVote}/10 ({group.Votes} votes)
+                                  </Typography>
+                                </Box>
+                              </Show>
+                            </Box>
 
-                                    <Show when={torrent.EditionData?.EditionTitle && torrent.Property !== torrent.EditionData?.EditionTitle}>
-                                      <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{ mb: 1, fontStyle: "italic" }}
-                                      >
-                                        {torrent.Property}
-                                      </Typography>
-                                    </Show>
+                            {/* Alternative titles */}
+                            <Show when={group.SynonymnsV2}>
+                              <Box sx={{ mt: 2 }}>
+                                <Show when={group.SynonymnsV2?.Japanese}>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    <strong>Japanese:</strong>{" "}
+                                    {group.SynonymnsV2?.Japanese}
+                                  </Typography>
+                                </Show>
+                                <Show when={group.SynonymnsV2?.Romaji}>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    <strong>Romaji:</strong>{" "}
+                                    {group.SynonymnsV2?.Romaji}
+                                  </Typography>
+                                </Show>
+                              </Box>
+                            </Show>
+                          </Box>
+                        </Box>
 
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        gap: 1,
-                                        flexWrap: "wrap",
-                                        mb: 1,
-                                      }}
-                                    >
-                                      <For
-                                        each={getTorrentProperty(
-                                          torrent.Property
-                                        )}
-                                      >
-                                        {(prop) => (
-                                          <Chip
-                                            label={prop}
-                                            size="small"
-                                            variant="outlined"
-                                            sx={{ fontSize: "0.7rem" }}
-                                          />
-                                        )}
-                                      </For>
-                                    </Box>
+                        {/* Tags */}
+                        <Show
+                          when={
+                            group.Tags?.filter((tag) => tag.trim()).length > 0
+                          }
+                        >
+                          <Box
+                            sx={{
+                              mt: 2,
+                              display: "flex",
+                              gap: 1,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <For each={group.Tags.filter((tag) => tag.trim())}>
+                              {(tag) => (
+                                <Chip
+                                  label={tag}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{ fontSize: "0.7rem" }}
+                                />
+                              )}
+                            </For>
+                          </Box>
+                        </Show>
+                      </Box>
 
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        gap: 3,
-                                        flexWrap: "wrap",
-                                        mt: 1,
-                                      }}
-                                    >
+                      <Divider />
+
+                      {/* Torrents */}
+                      <Box sx={{ p: 2 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            mb: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <Download />
+                          Available Torrents (
+                          {group.Torrents.filter((t) => t.Status === 0).length})
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                          }}
+                        >
+                          <For
+                            each={group.Torrents.filter(
+                              (torrent) => torrent.Status === 0,
+                            )}
+                          >
+                            {(torrent) => (
+                              <Card
+                                variant="outlined"
+                                sx={{ backgroundColor: "action.hover" }}
+                              >
+                                <CardContent sx={{ p: 2 }}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexDirection: {
+                                        xs: "column",
+                                        sm: "row",
+                                      },
+                                      justifyContent: "space-between",
+                                      alignItems: {
+                                        xs: "stretch",
+                                        sm: "flex-start",
+                                      },
+                                      gap: 2,
+                                    }}
+                                  >
+                                    <Box sx={{ flex: 1 }}>
                                       <Typography
-                                        variant="body2"
-                                        color="text.secondary"
+                                        variant="body1"
+                                        sx={{ fontWeight: "medium", mb: 1 }}
                                       >
-                                        Size: {formatFileSize(torrent.Size)}
+                                        {torrent.EditionData?.EditionTitle ||
+                                          torrent.Property}
                                       </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        color="success.main"
+
+                                      <Show
+                                        when={
+                                          torrent.EditionData?.EditionTitle &&
+                                          torrent.Property !==
+                                            torrent.EditionData?.EditionTitle
+                                        }
                                       >
-                                        ↑ {torrent.Seeders} seeders
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        color="warning.main"
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{ mb: 1, fontStyle: "italic" }}
+                                        >
+                                          {torrent.Property}
+                                        </Typography>
+                                      </Show>
+
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 1,
+                                          flexWrap: "wrap",
+                                          mb: 1,
+                                        }}
                                       >
-                                        ↓ {torrent.Leechers} leechers
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        color="text.secondary"
+                                        <For
+                                          each={getTorrentProperty(
+                                            torrent.Property,
+                                          )}
+                                        >
+                                          {(prop) => (
+                                            <Chip
+                                              label={prop}
+                                              size="small"
+                                              variant="outlined"
+                                              sx={{ fontSize: "0.7rem" }}
+                                            />
+                                          )}
+                                        </For>
+                                      </Box>
+
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 3,
+                                          flexWrap: "wrap",
+                                          mt: 1,
+                                        }}
                                       >
-                                        {torrent.Snatched} snatches
-                                      </Typography>
-                                      <Show when={torrent.UploadTime}>
                                         <Typography
                                           variant="body2"
                                           color="text.secondary"
                                         >
-                                          {formatDate(torrent.UploadTime)}
+                                          Size: {formatFileSize(torrent.Size)}
                                         </Typography>
-                                      </Show>
+                                        <Typography
+                                          variant="body2"
+                                          color="success.main"
+                                        >
+                                          ↑ {torrent.Seeders} seeders
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color="warning.main"
+                                        >
+                                          ↓ {torrent.Leechers} leechers
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                        >
+                                          {torrent.Snatched} snatches
+                                        </Typography>
+                                        <Show when={torrent.UploadTime}>
+                                          <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                          >
+                                            {formatDate(torrent.UploadTime)}
+                                          </Typography>
+                                        </Show>
+                                      </Box>
                                     </Box>
+
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      startIcon={<Download />}
+                                      onClick={() =>
+                                        handleDownload(
+                                          torrent.Link,
+                                          `${
+                                            group.SeriesName || group.GroupName
+                                          } - ${torrent.Property}`,
+                                          torrent.ID,
+                                        )
+                                      }
+                                      size="small"
+                                      sx={{
+                                        minWidth: { xs: "auto", sm: "120px" },
+                                        alignSelf: {
+                                          xs: "stretch",
+                                          sm: "flex-start",
+                                        },
+                                      }}
+                                    >
+                                      Add Torrent
+                                    </Button>
                                   </Box>
-
-                                  <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<Download />}
-                                    onClick={() =>
-                                      handleDownload(
-                                        torrent.Link,
-                                        `${
-                                          group.SeriesName || group.GroupName
-                                        } - ${torrent.Property}`,
-                                        torrent.ID
-                                      )
-                                    }
-                                    size="small"
-                                    sx={{
-                                      minWidth: { xs: "auto", sm: "120px" },
-                                      alignSelf: {
-                                        xs: "stretch",
-                                        sm: "flex-start",
-                                      },
-                                    }}
-                                  >
-                                    Add Torrent
-                                  </Button>
-                                </Box>
-                              </CardContent>
-                            </Card>
-                          )}
-                        </For>
+                                </CardContent>
+                              </Card>
+                            )}
+                          </For>
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              )}
-            </For>
-          </Box>
-        </Show>
+                    </CardContent>
+                  </Card>
+                )}
+              </For>
+            </Box>
+          </Show>
 
-        <Show when={!query().trim() && !searchResults.loading}>
-          <Card>
-            <CardContent>
-              <Typography
-                sx={{ textAlign: "center", py: 4 }}
-                color="text.secondary"
-              >
-{mangaMode 
-                  ? "Enter a search term to find manga on AnimeBytes"
-                  : "Enter a search term to find anime series on AnimeBytes"
-                }
-              </Typography>
-            </CardContent>
-          </Card>
-        </Show>
-      </Suspense>
+          <Show when={!query().trim() && !searchResults.loading}>
+            <Card>
+              <CardContent>
+                <Typography
+                  sx={{ textAlign: "center", py: 4 }}
+                  color="text.secondary"
+                >
+                  {mangaMode
+                    ? "Enter a search term to find manga on AnimeBytes"
+                    : "Enter a search term to find anime series on AnimeBytes"}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Show>
+        </Suspense>
 
-      <Toaster />
+        <Toaster />
       </Box>
     </>
   );

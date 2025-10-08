@@ -5,15 +5,19 @@ interface FullscreenMobileDialogProps extends ComponentProps<typeof Dialog> {
   children: JSX.Element;
 }
 
-interface FullscreenMobileDialogContentProps extends ComponentProps<typeof DialogContent> {
+interface FullscreenMobileDialogContentProps
+  extends ComponentProps<typeof DialogContent> {
   children: JSX.Element;
 }
 
-interface FullscreenMobileDialogActionsProps extends ComponentProps<typeof DialogActions> {
+interface FullscreenMobileDialogActionsProps
+  extends ComponentProps<typeof DialogActions> {
   children: JSX.Element;
 }
 
-export default function FullscreenMobileDialog(props: FullscreenMobileDialogProps) {
+export default function FullscreenMobileDialog(
+  props: FullscreenMobileDialogProps,
+) {
   const { children, sx, ...dialogProps } = props;
 
   return (
@@ -36,7 +40,9 @@ export default function FullscreenMobileDialog(props: FullscreenMobileDialogProp
   );
 }
 
-export function FullscreenMobileDialogContent(props: FullscreenMobileDialogContentProps) {
+export function FullscreenMobileDialogContent(
+  props: FullscreenMobileDialogContentProps,
+) {
   const { children, sx, ...contentProps } = props;
 
   return (
@@ -53,7 +59,9 @@ export function FullscreenMobileDialogContent(props: FullscreenMobileDialogConte
   );
 }
 
-export function FullscreenMobileDialogActions(props: FullscreenMobileDialogActionsProps) {
+export function FullscreenMobileDialogActions(
+  props: FullscreenMobileDialogActionsProps,
+) {
   const { children, sx, ...actionsProps } = props;
 
   return (

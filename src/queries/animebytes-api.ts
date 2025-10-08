@@ -49,7 +49,10 @@ export interface AnimeBytesGroup {
   Tags: string[];
   Torrents: AnimeBytesTorrent[];
   // Music-specific fields
-  Artists?: Record<string, { name: string; character?: Record<string, string> }>;
+  Artists?: Record<
+    string,
+    { name: string; character?: Record<string, string> }
+  >;
   Associations?: string;
 }
 
@@ -91,7 +94,12 @@ export const searchAnimeBytes = query(
   async (params: SearchAnimeBytesParams): Promise<AnimeBytesGroup[]> => {
     "use server";
 
-    const { query: searchQuery, type = "anime", limit = 25, mangaOnly = false } = params;
+    const {
+      query: searchQuery,
+      type = "anime",
+      limit = 25,
+      mangaOnly = false,
+    } = params;
 
     if (!searchQuery?.trim()) {
       return [];
@@ -136,7 +144,7 @@ export const searchAnimeBytes = query(
     } catch (error) {
       console.error("AnimeBytes search error:", error);
       throw new Error(
-        `Failed to search AnimeBytes: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to search AnimeBytes: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   },

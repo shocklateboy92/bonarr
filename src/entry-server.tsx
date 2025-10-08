@@ -26,5 +26,5 @@ export default createHandler(
       )}
     />
   ),
-  { mode: "async" }
+  { mode: "async" },
 );
