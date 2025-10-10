@@ -33,6 +33,7 @@ import {
   type AnimeBytesGroup,
 } from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
+import { getCurrentConfig } from "../queries/config";
 
 interface AnimeBytesSearchProps {
   mangaMode?: boolean;
@@ -85,7 +86,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
     torrentId: number,
   ) => {
     try {
-      const downloadDir = import.meta.env.VITE_TORRENT_FILTER_PATH;
+      const downloadDir = getCurrentConfig()?.torrentFilterPath;
       const result = await transmissionClient.addTorrent(
         downloadUrl,
         downloadDir,

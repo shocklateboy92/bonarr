@@ -25,6 +25,7 @@ import {
 } from "@suid/icons-material";
 import { searchTorrents } from "../api/prowlarr";
 import { transmissionClient } from "../api/transmission";
+import { getCurrentConfig } from "../queries/config";
 
 // TV categories for filtering (based on common torrent categories)
 const TV_CATEGORIES = [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5070, 5080]; // TV categories
@@ -43,6 +44,7 @@ export default function TorrentSearch() {
     () => query()?.trim(),
     (searchQuery) => searchTorrents(searchQuery, TV_CATEGORIES),
   );
+
 
   const handleSearch = () => {
     const searchTerm = query().trim();
@@ -65,7 +67,7 @@ export default function TorrentSearch() {
 
   const handleDownload = async (magnetUrl: string, torrentName: string) => {
     try {
-      const downloadDir = import.meta.env.VITE_TORRENT_FILTER_PATH;
+      const downloadDir = getCurrentConfig()?.torrentFilterPath;
       const result = await transmissionClient.addTorrent(
         magnetUrl,
         downloadDir,

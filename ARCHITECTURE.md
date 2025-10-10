@@ -246,8 +246,8 @@ VITE_TRANSMISSION_PASSWORD=password  # Optional
 VITE_ANIMEBYTES_USERNAME=username
 VITE_ANIMEBYTES_PASSKEY=passkey
 
-# Download Management
-VITE_TORRENT_FILTER_PATH=/path/to/downloads
+# Download Management (Runtime)
+TORRENT_FILTER_PATH=/path/to/downloads
 VITE_LIBRARY_ROOT=/path/to/media/library
 ```
 

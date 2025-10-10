@@ -22,17 +22,18 @@ import {
   ArrowBack,
 } from "@suid/icons-material";
 import { transmissionClient, Torrent } from "../api/transmission";
+import { getCurrentConfig } from "../queries/config";
 
 export default function TorrentsList() {
   const params = useParams();
 
-  const [torrents, { refetch }] = createResource(async () => {
-    return await transmissionClient.getTorrents();
-  });
-
-  const filterPath = import.meta.env.VITE_TORRENT_FILTER_PATH;
+  const [torrents, { refetch }] = createResource(() =>
+    transmissionClient.getTorrents(),
+  );
+  const [currentConfig] = createResource(() => getCurrentConfig());
 
   const filteredTorrents = createMemo(() => {
+    const filterPath = currentConfig()?.torrentFilterPath;
     const allTorrents = torrents();
     if (!allTorrents || !filterPath) return allTorrents;
 
@@ -142,10 +143,10 @@ export default function TorrentsList() {
                   color="text.secondary"
                 >
                   No torrents found in the configured path (
-                  {filterPath || "not configured"}).
-                  {filterPath
-                    ? "Add torrents to this location or check your VITE_TORRENT_FILTER_PATH setting."
-                    : "Configure VITE_TORRENT_FILTER_PATH in your .env file."}
+                  {getCurrentConfig()?.torrentFilterPath || "not configured"}).{" "}
+                  {getCurrentConfig()?.torrentFilterPath
+                    ? "Add torrents to this location or check your TORRENT_FILTER_PATH setting."
+                    : "Configure TORRENT_FILTER_PATH in your .env file."}
                 </Typography>
               </CardContent>
             </Card>
