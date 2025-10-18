@@ -25,7 +25,7 @@ import {
 } from "@suid/icons-material";
 import { searchTorrents } from "../api/prowlarr";
 import { transmissionClient } from "../api/transmission";
-import { getCurrentConfig } from "../queries/config";
+import { useCurrentConfig } from "../queries/config";
 
 // TV categories for filtering (based on common torrent categories)
 const TV_CATEGORIES = [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5070, 5080]; // TV categories
@@ -45,6 +45,7 @@ export default function TorrentSearch() {
     (searchQuery) => searchTorrents(searchQuery, TV_CATEGORIES),
   );
 
+  const [currentConfig] = useCurrentConfig();
 
   const handleSearch = () => {
     const searchTerm = query().trim();
@@ -67,7 +68,13 @@ export default function TorrentSearch() {
 
   const handleDownload = async (magnetUrl: string, torrentName: string) => {
     try {
-      const downloadDir = getCurrentConfig()?.torrentFilterPath;
+      const downloadDir = currentConfig()?.torrentFilterPath;
+      if (!downloadDir) {
+        toast.error(
+          `Cannot add torrent "${torrentName}": Download directory is not configured. If you just loaded the page, please wait a moment and try again.`,
+        );
+      }
+
       const result = await transmissionClient.addTorrent(
         magnetUrl,
         downloadDir,

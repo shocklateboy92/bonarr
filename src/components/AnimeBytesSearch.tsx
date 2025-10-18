@@ -33,7 +33,7 @@ import {
   type AnimeBytesGroup,
 } from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
-import { getCurrentConfig } from "../queries/config";
+import { useCurrentConfig } from "../queries/config";
 
 interface AnimeBytesSearchProps {
   mangaMode?: boolean;
@@ -61,6 +61,8 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
       }),
   );
 
+  const [currentConfig] = useCurrentConfig();
+
   const handleSearch = () => {
     const searchTerm = query().trim();
     if (searchTerm) {
@@ -86,7 +88,14 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
     torrentId: number,
   ) => {
     try {
-      const downloadDir = getCurrentConfig()?.torrentFilterPath;
+      const downloadDir = currentConfig()?.torrentFilterPath;
+      if (!downloadDir) {
+        toast.error(
+          `Cannot add torrent "${torrentName}": Download directory is not configured. If you just loaded the page, please wait a moment and try again.`,
+        );
+        return;
+      }
+
       const result = await transmissionClient.addTorrent(
         downloadUrl,
         downloadDir,

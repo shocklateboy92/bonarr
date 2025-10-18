@@ -1,36 +1,34 @@
-import { createResource, Show, Suspense, For, createMemo } from "solid-js";
-import { A, useParams } from "@solidjs/router";
 import { Title } from "@solidjs/meta";
+import { A, useParams } from "@solidjs/router";
 import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  CircularProgress,
-  Chip,
-  LinearProgress,
-  Button,
-} from "@suid/material";
-import {
+  ArrowBack,
   Download,
-  Upload,
-  PlayArrow,
-  Stop,
-  CheckCircle,
   Error as ErrorIcon,
   Schedule,
-  ArrowBack,
+  Stop,
+  Upload,
 } from "@suid/icons-material";
-import { transmissionClient, Torrent } from "../api/transmission";
-import { getCurrentConfig } from "../queries/config";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  LinearProgress,
+  Typography,
+} from "@suid/material";
+import { createMemo, createResource, For, Show, Suspense } from "solid-js";
+import { Torrent, transmissionClient } from "../api/transmission";
+import { useCurrentConfig } from "../queries/config";
 
 export default function TorrentsList() {
   const params = useParams();
 
   const [torrents, { refetch }] = createResource(() =>
-    transmissionClient.getTorrents(),
+    transmissionClient.getTorrents()
   );
-  const [currentConfig] = createResource(() => getCurrentConfig());
+  const [currentConfig] = useCurrentConfig();
 
   const filteredTorrents = createMemo(() => {
     const filterPath = currentConfig()?.torrentFilterPath;
@@ -143,8 +141,8 @@ export default function TorrentsList() {
                   color="text.secondary"
                 >
                   No torrents found in the configured path (
-                  {getCurrentConfig()?.torrentFilterPath || "not configured"}).{" "}
-                  {getCurrentConfig()?.torrentFilterPath
+                  {currentConfig()?.torrentFilterPath || "not configured"}).{" "}
+                  {currentConfig()?.torrentFilterPath
                     ? "Add torrents to this location or check your TORRENT_FILTER_PATH setting."
                     : "Configure TORRENT_FILTER_PATH in your .env file."}
                 </Typography>
@@ -226,7 +224,7 @@ export default function TorrentsList() {
                               <Chip
                                 icon={getStatusIcon(torrent.status)}
                                 label={transmissionClient.getStatusLabel(
-                                  torrent.status,
+                                  torrent.status
                                 )}
                                 color={getStatusColor(torrent.status) as any}
                                 size="small"
@@ -253,11 +251,11 @@ export default function TorrentsList() {
                                 color="text.secondary"
                               >
                                 {transmissionClient.formatBytes(
-                                  torrent.downloadedEver,
+                                  torrent.downloadedEver
                                 )}{" "}
                                 /{" "}
                                 {transmissionClient.formatBytes(
-                                  torrent.totalSize,
+                                  torrent.totalSize
                                 )}
                               </Typography>
                             </Box>
@@ -291,7 +289,7 @@ export default function TorrentsList() {
                                 <Download fontSize="small" color="primary" />
                                 <Typography variant="body2">
                                   {transmissionClient.formatSpeed(
-                                    torrent.rateDownload,
+                                    torrent.rateDownload
                                   )}
                                 </Typography>
                               </Box>
@@ -308,7 +306,7 @@ export default function TorrentsList() {
                                 <Upload fontSize="small" color="success" />
                                 <Typography variant="body2">
                                   {transmissionClient.formatSpeed(
-                                    torrent.rateUpload,
+                                    torrent.rateUpload
                                   )}
                                 </Typography>
                               </Box>
