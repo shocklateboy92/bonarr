@@ -13,12 +13,16 @@
   ],
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker": {
+      "moby": false
+    },
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
   "customizations": {
     "vscode": {
-      "extensions": ["esbenp.prettier-vscode"]
+      "extensions": [
+        "esbenp.prettier-vscode"
+      ]
     }
   }
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
