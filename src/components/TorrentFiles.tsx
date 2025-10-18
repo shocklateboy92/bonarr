@@ -31,7 +31,6 @@ import {
   For,
   onCleanup,
   Show,
-  Suspense,
 } from "solid-js";
 import { transmissionClient } from "../api/transmission";
 
@@ -47,7 +46,7 @@ export default function TorrentFiles() {
   );
 
   // Extract just the status for fine-grained tracking
-  const torrentStatus = createMemo(() => torrent()?.status);
+  const torrentStatus = createMemo(() => torrent.latest?.status);
 
   // Periodically refresh if torrent is not in seeding status
   // This effect only re-runs when torrentStatus() changes, not on every data update
@@ -120,21 +119,35 @@ export default function TorrentFiles() {
           </A>
         </Box>
 
-        <Suspense
+        <Show when={torrent.error}>
+          <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
+            Error: {torrent.error?.message}
+          </Typography>
+        </Show>
+
+        <Show
+          when={torrent.latest}
           fallback={
             <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
               <CircularProgress />
             </Box>
           }
         >
-          <Show when={torrent.error}>
-            <Typography color="error" sx={{ textAlign: "center", my: 2 }}>
-              Error: {torrent.error?.message}
-            </Typography>
-          </Show>
+          {(torrentData) => (
+            <Box>
+              {/* Subtle loading indicator during background refresh */}
+              <Show when={torrent.loading}>
+                <LinearProgress
+                  sx={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 9999,
+                  }}
+                />
+              </Show>
 
-          <Show when={torrent()}>
-            {(torrentData) => (
               <Box>
                 {/* Context Header */}
                 <Box sx={{ mb: 2 }}>
@@ -385,9 +398,9 @@ export default function TorrentFiles() {
                   </CardContent>
                 </Card>
               </Box>
-            )}
-          </Show>
-        </Suspense>
+            </Box>
+          )}
+        </Show>
       </Box>
     </>
   );
