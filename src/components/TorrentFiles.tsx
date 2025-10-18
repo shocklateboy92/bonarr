@@ -24,19 +24,51 @@ import {
   TableRow,
   Typography,
 } from "@suid/material";
-import { createResource, For, Show, Suspense } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  For,
+  onCleanup,
+  Show,
+  Suspense,
+} from "solid-js";
 import { transmissionClient } from "../api/transmission";
 
 export default function TorrentFiles() {
   const params = useParams();
 
-  const [torrent] = createResource(
+  const [torrent, { refetch }] = createResource(
     () => params.torrentId,
     async (torrentId) => {
       if (!torrentId) return null;
       return await transmissionClient.getTorrentFiles(parseInt(torrentId));
     },
   );
+
+  // Extract just the status for fine-grained tracking
+  const torrentStatus = createMemo(() => torrent()?.status);
+
+  // Periodically refresh if torrent is not in seeding status
+  // This effect only re-runs when torrentStatus() changes, not on every data update
+  createEffect(() => {
+    const status = torrentStatus();
+    if (status === undefined || status === null) return;
+
+    // Status 6 is "seeding" - don't refresh if already seeding
+    if (status === 6) return;
+
+    // Set up interval to refresh every 5 seconds
+    const intervalId = setInterval(() => {
+      refetch();
+    }, 5000);
+
+    // Cleanup runs when status changes or component unmounts
+    // When status becomes 6 (seeding), cleanup runs and no new interval is created
+    onCleanup(() => {
+      clearInterval(intervalId);
+    });
+  });
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleString();
