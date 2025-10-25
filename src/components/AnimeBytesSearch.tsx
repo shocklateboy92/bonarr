@@ -105,7 +105,8 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
       const downloadDir = currentConfig()?.torrentFilterPath;
       if (!downloadDir) {
         toast.error(
-          `Cannot add torrent "${torrentName}": Download directory is not configured. If you just loaded the page, please wait a moment and try again.`,
+          `Cannot add torrent "${torrentName}": Download directory is not configured. ` +
+            `If you just loaded the page, please wait a moment and try again.`,
         );
         return;
       }
