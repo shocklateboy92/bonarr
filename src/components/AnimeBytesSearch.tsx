@@ -1,4 +1,4 @@
-import { createResource, createSignal, Show, Suspense, For } from "solid-js";
+import { createResource, createSignal, Show, Suspense, For, createMemo } from "solid-js";
 import { useParams, useSearchParams, A, useNavigate } from "@solidjs/router";
 import { Title } from "@solidjs/meta";
 import {
@@ -34,6 +34,7 @@ import {
 } from "../queries/animebytes-api";
 import { transmissionClient } from "../api/transmission";
 import { useCurrentConfig } from "../queries/config";
+import { createScheduled, debounce } from "@solid-primitives/scheduled";
 
 interface AnimeBytesSearchProps {
   mangaMode?: boolean;
@@ -50,8 +51,26 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
       : searchParams.q || "",
   );
 
+  // Create a debounced signal using solid-primitives
+  const scheduled = createScheduled((fn) => debounce(fn, 500));
+  
+  const debouncedQuery = createMemo((prev: string = "") => {
+    const currentQuery = query();
+    // Trigger the scheduled update
+    if (scheduled()) {
+      // Update search params when debounced query changes
+      if (currentQuery.trim()) {
+        setSearchParams({ q: currentQuery });
+      } else {
+        setSearchParams({});
+      }
+      return currentQuery;
+    }
+    return prev;
+  });
+
   const [searchResults, { refetch }] = createResource(
-    () => query()?.trim(),
+    () => debouncedQuery()?.trim(),
     (searchQuery) =>
       searchAnimeBytes({
         query: searchQuery,
@@ -67,7 +86,6 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
     const searchTerm = query().trim();
     if (searchTerm) {
       setSearchParams({ q: searchTerm });
-      refetch();
     }
   };
 
@@ -261,7 +279,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
 
           <Show
             when={
-              query().trim() &&
+              debouncedQuery().trim() &&
               searchResults()?.length === 0 &&
               !searchResults.loading
             }
@@ -273,8 +291,8 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
                   color="text.secondary"
                 >
                   {mangaMode
-                    ? `No manga found on AnimeBytes for "${query()}". Try different search terms.`
-                    : `No results found on AnimeBytes for "${query()}". Try different search terms.`}
+                    ? `No manga found on AnimeBytes for "${debouncedQuery()}". Try different search terms.`
+                    : `No results found on AnimeBytes for "${debouncedQuery()}". Try different search terms.`}
                 </Typography>
               </CardContent>
             </Card>
@@ -293,7 +311,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
                 Found {searchResults()!.length} series/groups
               </Typography>
               <Chip
-                label={`Searching: "${query()}"`}
+                label={`Searching: "${debouncedQuery()}"`}
                 size="small"
                 variant="outlined"
                 onDelete={handleClear}
@@ -705,7 +723,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
             </Box>
           </Show>
 
-          <Show when={!query().trim() && !searchResults.loading}>
+          <Show when={!debouncedQuery().trim() && !searchResults.loading}>
             <Card>
               <CardContent>
                 <Typography
