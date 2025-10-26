@@ -1,5 +1,4 @@
 import {
-  createSignal,
   createResource,
   For,
   Show,
@@ -9,8 +8,6 @@ import {
 } from "solid-js";
 import { Title } from "@solidjs/meta";
 import {
-  TextField,
-  Button,
   Card,
   CardContent,
   Typography,
@@ -19,12 +16,15 @@ import {
 } from "@suid/material";
 import { A } from "@solidjs/router";
 import { searchComicVineVolumes } from "../queries/comicvine-api";
+import SearchBar from "./shared/SearchBar";
 
 export default function VolumeSearch() {
-  const [searchQuery, setSearchQuery] = createSignal("");
+  const { debouncedQuery, input: searchInput } = SearchBar({
+    label: "Search Comic Volumes",
+  });
 
-  const [volumes, { refetch }] = createResource(
-    () => searchQuery().trim(),
+  const [volumes] = createResource(
+    () => debouncedQuery().trim(),
     async (q) => {
       if (!q) return null;
       return await searchComicVineVolumes({ query: q });
@@ -35,32 +35,8 @@ export default function VolumeSearch() {
     <>
       <Title>Search Volumes | Bonarr</Title>
       <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 1, md: 2 } }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: 1, sm: 2 },
-            mb: 3,
-          }}
-        >
-          <TextField
-            fullWidth
-            label="Search Comic Volumes"
-            variant="outlined"
-            value={searchQuery()}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            onclick={refetch}
-            disabled={!searchQuery().trim()}
-            sx={{
-              minWidth: { xs: "100%", sm: "auto" },
-              minHeight: { xs: "48px", sm: "auto" },
-            }}
-          >
-            Search
-          </Button>
+        <Box sx={{ mb: 3 }}>
+          {searchInput}
         </Box>
 
         <Suspense
@@ -77,7 +53,7 @@ export default function VolumeSearch() {
               </Typography>
             </Match>
 
-            <Match when={!searchQuery()}>
+            <Match when={!debouncedQuery()}>
               <Typography
                 variant="body1"
                 sx={{ textAlign: "center", my: 4, color: "text.secondary" }}
@@ -91,7 +67,7 @@ export default function VolumeSearch() {
                 variant="body1"
                 sx={{ textAlign: "center", my: 4, color: "text.secondary" }}
               >
-                No volumes found for "{searchQuery()}"
+                No volumes found for "{debouncedQuery()}"
               </Typography>
             </Match>
 

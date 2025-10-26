@@ -1,5 +1,5 @@
-import { createResource, createSignal, Show, Suspense, For } from "solid-js";
-import { useParams, useSearchParams, A, useNavigate } from "@solidjs/router";
+import { createResource, Show, Suspense, For } from "solid-js";
+import { useParams, A, useNavigate } from "@solidjs/router";
 import { Title } from "@solidjs/meta";
 import {
   Card,
@@ -8,17 +8,12 @@ import {
   Box,
   CircularProgress,
   Button,
-  TextField,
   Chip,
-  IconButton,
-  InputAdornment,
 } from "@suid/material";
 import toast, { Toaster } from "solid-toast";
 import {
   ArrowBack,
-  Search,
   Download,
-  Clear,
   FileDownload,
   Info,
   Schedule,
@@ -26,45 +21,25 @@ import {
 import { searchTorrents } from "../api/prowlarr";
 import { transmissionClient } from "../api/transmission";
 import { useCurrentConfig } from "../queries/config";
+import SearchBar from "./shared/SearchBar";
 
 // TV categories for filtering (based on common torrent categories)
 const TV_CATEGORIES = [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5070, 5080]; // TV categories
 
 export default function TorrentSearch() {
   const params = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [query, setQuery] = createSignal(
-    Array.isArray(searchParams.q)
-      ? searchParams.q[0] || ""
-      : searchParams.q || "",
-  );
 
-  const [searchResults, { refetch }] = createResource(
-    () => query()?.trim(),
+  const { debouncedQuery, input: searchInput } = SearchBar({
+    label: "Search for torrents",
+  });
+
+  const [searchResults] = createResource(
+    () => debouncedQuery()?.trim(),
     (searchQuery) => searchTorrents(searchQuery, TV_CATEGORIES),
   );
 
   const [currentConfig] = useCurrentConfig();
-
-  const handleSearch = () => {
-    const searchTerm = query().trim();
-    if (searchTerm) {
-      setSearchParams({ q: searchTerm });
-      refetch();
-    }
-  };
-
-  const handleClear = () => {
-    setQuery("");
-    setSearchParams({});
-  };
-
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
 
   const handleDownload = async (magnetUrl: string, torrentName: string) => {
     try {
@@ -148,33 +123,7 @@ export default function TorrentSearch() {
 
         {/* Search Input */}
         <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            label="Search for torrents"
-            variant="outlined"
-            value={query()}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Show when={query().trim()}>
-                    <IconButton onClick={handleClear} edge="end">
-                      <Clear />
-                    </IconButton>
-                  </Show>
-                  <IconButton
-                    onClick={handleSearch}
-                    edge="end"
-                    disabled={!query().trim()}
-                    color="primary"
-                  >
-                    <Search />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+          {searchInput}
           <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Chip label="TV Shows Only" size="small" color="primary" />
             <Chip label="Prowlarr Search" size="small" variant="outlined" />
@@ -213,7 +162,7 @@ export default function TorrentSearch() {
 
           <Show
             when={
-              query().trim() &&
+              debouncedQuery().trim() &&
               searchResults()?.length === 0 &&
               !searchResults.loading
             }
@@ -224,7 +173,7 @@ export default function TorrentSearch() {
                   sx={{ textAlign: "center", py: 4 }}
                   color="text.secondary"
                 >
-                  No torrents found for "{query()}". Try adjusting your search
+                  No torrents found for "{debouncedQuery()}". Try adjusting your search
                   terms.
                 </Typography>
               </CardContent>
@@ -244,10 +193,9 @@ export default function TorrentSearch() {
                 Found {searchResults()!.length} results
               </Typography>
               <Chip
-                label={`Searching: "${query()}"`}
+                label={`Searching: "${debouncedQuery()}"`}
                 size="small"
                 variant="outlined"
-                onDelete={handleClear}
               />
             </Box>
 
@@ -499,7 +447,7 @@ export default function TorrentSearch() {
             </Box>
           </Show>
 
-          <Show when={!query().trim() && !searchResults.loading}>
+          <Show when={!debouncedQuery().trim() && !searchResults.loading}>
             <Card>
               <CardContent>
                 <Typography

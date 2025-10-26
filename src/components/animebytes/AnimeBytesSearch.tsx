@@ -1,5 +1,5 @@
-import { createResource, createSignal, Show, For, createMemo } from "solid-js";
-import { useParams, useSearchParams, A, useNavigate } from "@solidjs/router";
+import { createResource, Show, For } from "solid-js";
+import { useParams, A, useNavigate } from "@solidjs/router";
 import { Title } from "@solidjs/meta";
 import {
   Card,
@@ -7,19 +7,14 @@ import {
   Typography,
   Box,
   Button,
-  TextField,
   Chip,
-  IconButton,
-  InputAdornment,
   Avatar,
   Divider,
 } from "@suid/material";
 import toast, { Toaster } from "solid-toast";
 import {
   ArrowBack,
-  Search,
   Download,
-  Clear,
   FileDownload,
   Info,
   ThumbUp,
@@ -33,9 +28,9 @@ import {
 } from "../../queries/animebytes-api";
 import { transmissionClient } from "../../api/transmission";
 import { useCurrentConfig } from "../../queries/config";
-import { createScheduled, debounce } from "@solid-primitives/scheduled";
 import ResourceDisplay from "../shared/ResourceDisplay";
 import TorrentFileList from "./TorrentFileList";
+import SearchBar from "../shared/SearchBar";
 
 interface AnimeBytesSearchProps {
   mangaMode?: boolean;
@@ -44,30 +39,10 @@ interface AnimeBytesSearchProps {
 export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
   const { mangaMode = false } = props;
   const params = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [query, setQuery] = createSignal(
-    Array.isArray(searchParams.q)
-      ? searchParams.q[0] || ""
-      : searchParams.q || "",
-  );
 
-  // Create a debounced signal using solid-primitives
-  const scheduled = createScheduled((fn) => debounce(fn, 500));
-
-  const debouncedQuery = createMemo((prev: string = "") => {
-    const currentQuery = query();
-    // Trigger the scheduled update
-    if (scheduled()) {
-      // Update search params when debounced query changes
-      if (currentQuery.trim()) {
-        setSearchParams({ q: currentQuery });
-      } else {
-        setSearchParams({});
-      }
-      return currentQuery;
-    }
-    return prev;
+  const { debouncedQuery, input: searchInput } = SearchBar({
+    label: mangaMode ? "Search AnimeBytes for Manga" : "Search AnimeBytes",
   });
 
   const [searchResults] = createResource(
@@ -82,24 +57,6 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
   );
 
   const [currentConfig] = useCurrentConfig();
-
-  const handleSearch = () => {
-    const searchTerm = query().trim();
-    if (searchTerm) {
-      setSearchParams({ q: searchTerm });
-    }
-  };
-
-  const handleClear = () => {
-    setQuery("");
-    setSearchParams({});
-  };
-
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
 
   const handleDownload = async (downloadUrl: string, torrentName: string) => {
     try {
@@ -203,35 +160,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
 
         {/* Search Input */}
         <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            label={
-              mangaMode ? "Search AnimeBytes for Manga" : "Search AnimeBytes"
-            }
-            variant="outlined"
-            value={query()}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Show when={query().trim()}>
-                    <IconButton onClick={handleClear} edge="end">
-                      <Clear />
-                    </IconButton>
-                  </Show>
-                  <IconButton
-                    onClick={handleSearch}
-                    edge="end"
-                    disabled={!query().trim()}
-                    color="primary"
-                  >
-                    <Search />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+          {searchInput}
           <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Chip label="AnimeBytes" size="small" color="primary" />
             <Chip label="Direct Search" size="small" variant="outlined" />
@@ -297,7 +226,6 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
                       label={`Searching: "${debouncedQuery()}"`}
                       size="small"
                       variant="outlined"
-                      onDelete={handleClear}
                     />
                   </Box>
 
