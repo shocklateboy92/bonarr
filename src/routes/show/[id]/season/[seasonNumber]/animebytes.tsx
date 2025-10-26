@@ -1,5 +1,5 @@
 import PageLayout from "../../../../../components/shared/layouts/PageLayout";
-import AnimeBytesSearch from "../../../../../components/AnimeBytesSearch";
+import AnimeBytesSearch from "../../../../../components/animebytes/AnimeBytesSearch";
 
 export default function AnimeBytesSearchPage() {
   return (
