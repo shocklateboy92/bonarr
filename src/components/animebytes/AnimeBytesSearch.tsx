@@ -34,7 +34,7 @@ import {
 import { transmissionClient } from "../../api/transmission";
 import { useCurrentConfig } from "../../queries/config";
 import { createScheduled, debounce } from "@solid-primitives/scheduled";
-import ResourceDisplay from "../ResourceDisplay";
+import ResourceDisplay from "../shared/ResourceDisplay";
 import TorrentFileList from "./TorrentFileList";
 
 interface AnimeBytesSearchProps {
