@@ -6,7 +6,7 @@ import {
   InsertDriveFile,
   Folder,
 } from "@suid/icons-material";
-import type { AnimeBytesTorrent } from "../queries/animebytes-api";
+import type { AnimeBytesTorrent } from "../../queries/animebytes-api";
 
 interface TorrentFileListProps {
   torrent: AnimeBytesTorrent;
