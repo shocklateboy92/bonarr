@@ -26,10 +26,6 @@ import {
   Category,
   CalendarToday,
   ImageNotSupported,
-  ExpandMore,
-  ExpandLess,
-  InsertDriveFile,
-  Folder,
 } from "@suid/icons-material";
 import {
   searchAnimeBytes,
@@ -39,6 +35,7 @@ import { transmissionClient } from "../api/transmission";
 import { useCurrentConfig } from "../queries/config";
 import { createScheduled, debounce } from "@solid-primitives/scheduled";
 import ResourceDisplay from "./ResourceDisplay";
+import TorrentFileList from "./TorrentFileList";
 
 interface AnimeBytesSearchProps {
   mangaMode?: boolean;
@@ -53,11 +50,6 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
     Array.isArray(searchParams.q)
       ? searchParams.q[0] || ""
       : searchParams.q || "",
-  );
-
-  // Track which torrents have expanded file lists
-  const [expandedTorrents, setExpandedTorrents] = createSignal<Set<number>>(
-    new Set(),
   );
 
   // Create a debounced signal using solid-primitives
@@ -90,22 +82,6 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
   );
 
   const [currentConfig] = useCurrentConfig();
-
-  const toggleTorrentFiles = (torrentId: number) => {
-    setExpandedTorrents((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(torrentId)) {
-        newSet.delete(torrentId);
-      } else {
-        newSet.add(torrentId);
-      }
-      return newSet;
-    });
-  };
-
-  const isTorrentExpanded = (torrentId: number) => {
-    return expandedTorrents().has(torrentId);
-  };
 
   const handleSearch = () => {
     const searchTerm = query().trim();
@@ -762,95 +738,7 @@ export default function AnimeBytesSearch(props: AnimeBytesSearchProps) {
                                         </Box>
 
                                         {/* File List Section (Collapsible) */}
-                                        <Show when={torrent.FileList && Object.keys(torrent.FileList).length > 0}>
-                                          <Box sx={{ mt: 2, pt: 1, borderTop: 1, borderColor: 'divider' }}>
-                                            <Button
-                                              variant="text"
-                                              size="small"
-                                              onClick={() => toggleTorrentFiles(torrent.ID)}
-                                              endIcon={isTorrentExpanded(torrent.ID) ? <ExpandLess /> : <ExpandMore />}
-                                            >
-                                              {isTorrentExpanded(torrent.ID) ? 'Hide' : 'Show'} Files ({Object.keys(torrent.FileList!).length})
-                                            </Button>
-
-                                            <Show when={isTorrentExpanded(torrent.ID)}>
-                                              <Box
-                                                sx={{
-                                                  maxHeight: 300,
-                                                  overflowY: 'auto',
-                                                  backgroundColor: 'background.default',
-                                                  borderRadius: 1,
-                                                  p: 1,
-                                                }}
-                                              >
-                                                <For each={Object.values(torrent.FileList!)}>
-                                                  {(fileInfo) => {
-                                                    const path = fileInfo.filename;
-                                                    const fileName = path.split('/').pop() || path;
-                                                    const directory = path.includes('/') 
-                                                      ? path.substring(0, path.lastIndexOf('/'))
-                                                      : '';
-                                                    
-                                                    return (
-                                                      <Box
-                                                        sx={{
-                                                          display: 'flex',
-                                                          alignItems: 'center',
-                                                          gap: 1,
-                                                          py: 0.5,
-                                                          px: 1,
-                                                          '&:hover': {
-                                                            backgroundColor: 'action.hover',
-                                                          },
-                                                        }}
-                                                      >
-                                                        {path.includes('/') ? (
-                                                          <Folder fontSize="small" color="primary" />
-                                                        ) : (
-                                                          <InsertDriveFile fontSize="small" color="action" />
-                                                        )}
-                                                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                          <Typography
-                                                            variant="body2"
-                                                            sx={{
-                                                              fontWeight: 'medium',
-                                                              overflow: 'hidden',
-                                                              textOverflow: 'ellipsis',
-                                                              whiteSpace: 'nowrap',
-                                                            }}
-                                                          >
-                                                            {fileName}
-                                                          </Typography>
-                                                          <Show when={directory}>
-                                                            <Typography
-                                                              variant="caption"
-                                                              color="text.secondary"
-                                                              sx={{
-                                                                overflow: 'hidden',
-                                                                textOverflow: 'ellipsis',
-                                                                whiteSpace: 'nowrap',
-                                                                display: 'block',
-                                                              }}
-                                                            >
-                                                              📁 {directory}
-                                                            </Typography>
-                                                          </Show>
-                                                        </Box>
-                                                        <Typography
-                                                          variant="caption"
-                                                          color="text.secondary"
-                                                          sx={{ flexShrink: 0 }}
-                                                        >
-                                                          {formatFileSize(fileInfo.size)}
-                                                        </Typography>
-                                                      </Box>
-                                                    );
-                                                  }}
-                                                </For>
-                                              </Box>
-                                            </Show>
-                                          </Box>
-                                        </Show>
+                                        <TorrentFileList torrent={torrent} />
                                       </CardContent>
                                     </Card>
                                   )}
